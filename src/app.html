@@ -294,7 +294,7 @@ var RIC = /*RIC*/;
       var s2 = cloneM(D.SPU_F); s2.key = 'spu'; s2.kind = 'mer'; out.push(s2);
       var p2 = cloneM(D.PRA_F[w.praFk]); p2.key = 'pra'; p2.kind = 'pra'; p2.slot = { pasta: 'praFPasta', pasta2: 'praFPasta', riso: 'praFRiso', legumi: 'praL' }[w.praFk] || null; out.push(p2);
       var m2 = cloneM(D.MER_F); m2.key = 'mer'; m2.kind = 'mer'; out.push(m2);
-      var e2 = cloneM(D.CEN_F[w.cenF]); e2.key = 'cen'; e2.kind = 'cen'; e2.slot = w.cenF === 'cenPass' ? 'cenFPass' : w.cenF; e2.cid = w.cenF; out.push(e2);
+      var e2 = cloneM(D.CEN_F[w.cenF]); e2.key = 'cen'; e2.kind = 'cen'; e2.slot = w.cenF === 'cenPass' ? 'cenFPass' : w.cenF === 'cenLib' ? null : w.cenF; if (w.cenF === 'cenLib') e2.hint = 'Pasto libero: punta a circa 520 kcal, prima la parte proteica.'; e2.cid = w.cenF; out.push(e2);
     }
     out.forEach(function (m) { if (m.key !== 'gym') applyVar(m, who); });
     if (who === 'R') { out = applyAdj(out, i); out.forEach(function (m) { if (m.key === 'gym') applyVar(m, who); }); }
@@ -475,7 +475,7 @@ var RIC = /*RIC*/;
   var $ = function (s) { return document.querySelector(s); };
   function renderWeek() {
     $('#week').innerHTML = DOW.map(function (d, i) {
-      var w = D.WEEK[i], ic = (S.who === 'R' && GYM[i] ? '🏋️' : '') + (w.active ? '🥾' : '') + (i === 5 && S.who === 'R' ? '🎉' : '');
+      var w = D.WEEK[i], ic = (S.who === 'R' && GYM[i] ? '🏋️' : '') + (w.active ? '🥾' : '') + (i === 5 ? '🎉' : '');
       return '<button type="button" class="dchip' + (i === TODAYI ? ' today' : '') + '" data-day="' + i + '" aria-pressed="' + (i === sel) + '" aria-label="' + w.day + '"><span class="dn">' + d + '</span><span class="dd">' + dateOf(i).getDate() + '</span><span class="di">' + ic + '</span></button>';
     }).join('');
     $('#week').hidden = !(tab === 'oggi');
@@ -504,7 +504,7 @@ var RIC = /*RIC*/;
     var tags = [];
     if (who === 'R' && GYM[i]) tags.push('<a class="tag gym" href="' + GYM_URL + '" target="_blank" rel="noopener">🏋️ Palestra · ' + GYM[i] + ' ›</a>');
     if (w.active) tags.push('<span class="tag walk">🥾 Camminata · porzioni extra incluse</span>');
-    if (who === 'R' && i === 5) tags.push('<span class="tag free">🎉 Cena libera</span>');
+    if (i === 5) tags.push('<span class="tag free">🎉 Cena libera per tutti e due</span>');
     if (i === 6) tags.push('<span class="tag free">' + (who === 'R' ? '🥐 Brioche a colazione · pranzo libero' : '🍝 Pranzo libero') + '</span>');
     tags.push('<span class="tag">Piano: ≈' + Math.round(tot.kcal / 10) * 10 + ' kcal · P ' + Math.round(tot.p) + ' g</span>');
     if (who === 'R') tags.push('<span class="tag">⚙️ Porzioni adattate al tuo peso</span>');
