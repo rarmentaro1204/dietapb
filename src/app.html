@@ -303,7 +303,7 @@ var RIC = /*RIC*/;
     return out;
   }
   /* Revisione nov 2026: Mounjaro 10 mg + Triatec 5 mg, 96 kg -> 80 kg a fine maggio 2027.
-     Palestra (lun/mer/ven) ~2000 kcal, camminata ~1900, riposo ~1750-1800; proteine ~145-170 g. */
+     Le kcal reali le decide il motore adattivo più sotto; qui solo le aggiunte per tipo di giorno. */
   var YOG = { kcal: 81, p: 15.5, f: 0.3, c: 4.5 }, SNACK_GYM = { kcal: 248, p: 19.2, f: 1.8, c: 38 };
   /* weekend: la colazione delle 10 fa anche da primo spuntino (niente spuntino separato) */
   var WE_COL = [['+ Pane integrale tostato', '50 g', 125, 4.5, 1, 22], ['+ Ricotta', '80 g', 117, 7, 8.8, 2.6], ['+ Miele', '10 g', 30, 0, 0, 8.2], ['+ Frutta secca', '15 g', 92, 2.7, 8, 1.8]];
@@ -330,10 +330,9 @@ var RIC = /*RIC*/;
     return m;
   }
   var ADJ = {
-    0: { colActive: true, gym: true, cen: [['+ Pasta o riso integrale', '30 g', 105, 4, 0.8, 20]] },
-    2: { colActive: true, gym: true, cen: [['+ Pasta o riso integrale', '30 g', 105, 4, 0.8, 20]] },
-    4: { colActive: true, gym: true, cen: [['+ Pasta o riso integrale', '30 g', 105, 4, 0.8, 20]] },
-    3: { mer: [['+ Proteina soia GymBeam', '20 g', 76, 17.6, 0.6, 0.4]], cen: [['+ Riso integrale', '30 g', 108, 2.3, 0.8, 23]] },
+    0: { colActive: true, gym: true },
+    2: { colActive: true, gym: true },
+    4: { colActive: true, gym: true },
     5: { col: WE_COL, mer: [['+ Proteina soia GymBeam', '20 g', 76, 17.6, 0.6, 0.4]], pra: [['+ Quinoa', '20 g', 74, 2.8, 1.2, 12.8]] },
     6: { col: WE_COL, mer: [['+ Proteina soia GymBeam', '30 g', 114, 26.4, 0.9, 0.6]] }
   };
@@ -364,9 +363,12 @@ var RIC = /*RIC*/;
         e lo corregge dal trend del peso: TDEE = kcal medie mangiate + (kg persi/giorno x 7700).
      2. Ritmo necessario per arrivare a 80 kg a fine maggio 2027 (limitato 0,25-0,9 kg/sett.).
      3. Budget settimanale = (TDEE - deficit) x 7. Sabato e domenica 3000 fissi, il resto
-        si divide sui feriali (palestra +80, camminata -120), mai sotto 1500 kcal. */
+        si divide sui feriali (palestra +80, mar e gio -120), nessun giorno sotto 1500 kcal. */
   var GOAL = { from: 96, to: 80, start: '2026-11-09', end: '2027-05-31' };
   var WE_KCAL = 3000, FLOOR = 1500, KCAL_KG = 7700;
+  /* senza camminate: 1873 kcal a riposo x ~1,375 (3 sedute di pesi) = circa 2575 */
+  var TDEE0 = 2575;
+  if (S.eng && !S.eng.upd && S.eng.tdee !== TDEE0) { S.eng.tdee = TDEE0; }
   function daysBetween(a, b) { return (new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5; }
   function trend() {
     S.w = S.w || {}; var ks = Object.keys(S.w).sort(); if (!ks.length) return null;
@@ -379,7 +381,7 @@ var RIC = /*RIC*/;
     return { cur: my + sl * (xs[xs.length - 1] - mx), slope: sl, from: win[0], last: lastK, n: ks.length };
   }
   function recalibrate() {
-    S.eng = S.eng || { tdee: 2700 }; var t = trend(); if (!t || t.slope === null || S.eng.upd === t.last) return;
+    S.eng = S.eng || { tdee: TDEE0 }; var t = trend(); if (!t || t.slope === null || S.eng.upd === t.last) return;
     var bud = S.bud || {}, vals = Object.keys(bud).filter(function (k) { return k >= t.from && k <= t.last; }).map(function (k) { return bud[k]; });
     var intake = vals.length ? vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : planCore(S.eng.tdee).avg;
     var obs = intake - t.slope * KCAL_KG; obs = Math.max(1800, Math.min(3800, obs));
@@ -392,12 +394,23 @@ var RIC = /*RIC*/;
     var avg = tdee - rate * KCAL_KG / 7, week = avg * 7, wd = (week - 2 * WE_KCAL) / 5, warn = '';
     if (wd < FLOOR) { wd = FLOOR; week = 5 * FLOOR + 2 * WE_KCAL; avg = week / 7; rate = Math.max(0, (tdee - avg) * 7 / KCAL_KG);
       warn = 'Con 3000 kcal nel weekend i feriali dovrebbero scendere sotto ' + FLOOR + ' kcal: li tengo a ' + FLOOR + ' e il ritmo scende a ' + r1(rate) + ' kg/sett.'; }
-    var day = {}; for (var i = 0; i < 7; i++) day[i] = i >= 5 ? WE_KCAL : Math.round((wd + (GYM[i] ? 80 : -120)) / 10) * 10;
+    var day = {}; for (var i = 0; i < 7; i++) day[i] = i >= 5 ? WE_KCAL : Math.max(FLOOR, Math.round((wd + (GYM[i] ? 80 : -120)) / 10) * 10);
+    var wk2 = 0; for (var j = 0; j < 7; j++) wk2 += day[j];
+    if (wk2 > week + 5) { avg = wk2 / 7; rate = Math.max(0, (tdee - avg) * 7 / KCAL_KG); if (!warn) warn = 'I giorni senza palestra sarebbero sotto ' + FLOOR + ' kcal: li tengo a ' + FLOOR + '. Ritmo previsto ' + r1(rate) + ' kg/sett.'; }
     var eta = rate > 0 ? new Date(Date.now() + (cur - GOAL.to) / rate * 6048e5) : null;
     return { tdee: tdee, cur: cur, need: need, rate: rate, avg: Math.round(avg), wd: Math.round(wd), day: day, warn: warn, eta: eta, wl: wl, t: t };
   }
   var PLAN = null;
-  function plan() { if (!PLAN) { recalibrate(); PLAN = planCore((S.eng || {}).tdee || 2700); S.bud = S.bud || {}; S.bud[iso(NOW)] = PLAN.avg; save(); } return PLAN; }
+  function plan() {
+    if (!PLAN) {
+      recalibrate(); PLAN = planCore((S.eng || {}).tdee || TDEE0);
+      var tot = 0; for (var i = 0; i < 7; i++) tot += totals(meals('R', i)).kcal;   // kcal reali del piano, non solo il bersaglio
+      PLAN.avg = Math.round(tot / 7); PLAN.rate = Math.max(0, (PLAN.tdee - PLAN.avg) * 7 / KCAL_KG);
+      PLAN.eta = PLAN.rate > 0 ? new Date(Date.now() + Math.max(0, PLAN.cur - GOAL.to) / PLAN.rate * 6048e5) : null;
+      S.bud = S.bud || {}; S.bud[iso(NOW)] = PLAN.avg; save();
+    }
+    return PLAN;
+  }
 
   /* porzioni: proteine fisse, carboidrati e grassi scalati per centrare le kcal del giorno */
   /* tabella per 100 g (kcal, P, C, G): solo alimenti che si scalano; proteine fisse */
@@ -415,7 +428,7 @@ var RIC = /*RIC*/;
     var L = scalables(out), sk = L.reduce(function (a, x) { return a + x.g * x.fd[1] / 100; }, 0), gap = kcal - base;
     var free = out.filter(function (m) { return /liber[oa]/i.test(m.label); })[0];
     if (free && gap > 0) { var fg = gap * 0.45, fr = fg / free.kcal; free.kcal += fg; free.c *= 1 + fr; free.f *= 1 + fr; free.p *= 1 + fr * 0.5; gap -= fg; }
-    var k = 1 + gap / Math.max(1, sk), kmax = free ? 1.7 : 2.4; k = Math.max(0.5, Math.min(kmax, k));
+    var k = 1 + gap / Math.max(1, sk), kmax = free ? 1.7 : 2.4; k = Math.max(0.4, Math.min(kmax, k));
     L.forEach(function (x) {
       var ng = x.g * k; ng = ng >= 20 ? Math.round(ng / 5) * 5 : Math.max(1, Math.round(ng)); var d = (ng - x.g) / 100;
       x.m.kcal += d * x.fd[1]; x.m.p += d * x.fd[2]; x.m.c += d * x.fd[3]; x.m.f += d * x.fd[4];
@@ -502,7 +515,6 @@ var RIC = /*RIC*/;
       var done = !!eaten[m.key], isOpen = !!ok[m.key], col = { col: 'var(--col)', pra: 'var(--pra)', mer: 'var(--mer)', cen: 'var(--cen)', gym: 'var(--accent)' }[m.kind];
       var title = m.label.replace(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)\s*—\s*/, function (a, b) { return ''; }) || m.label;
       var kind = m.label.match(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)/); kind = kind ? kind[1] : ''; if (m.key === 'gym') { kind = 'Palestra'; title = 'Spuntino palestra'; }
-      if (title === m.label && kind) title = kind;
       var pick = calPickFor(m, who, i), rs = m.slot ? recipesFor(m.slot, who) : [];
       h += '<article class="meal' + (done ? ' done' : '') + (isOpen ? ' open' : '') + (m.key === nk ? ' next' : '') + '" style="--mc:' + col + '" data-key="' + m.key + '">' +
         '<div class="mh"><button type="button" class="mh-t" data-toggle="' + m.key + '" style="border:0;background:transparent;text-align:left;padding:0" aria-expanded="' + isOpen + '"><div class="mt">' + esc(m.time) + ' · ' + esc(kind) + (m.key === nk ? ' <span class="badge">' + (mins(m.time) <= NOW.getHours() * 60 + NOW.getMinutes() ? 'Ora' : 'Prossimo') + '</span>' : '') + '</div>' +
@@ -539,14 +551,14 @@ var RIC = /*RIC*/;
 
   function weightHTML() {
     var P = plan(), t = P.t, ks = Object.keys(S.w || {}).sort(), done = GOAL.from - P.cur, pct = Math.max(0, Math.min(1, done / (GOAL.from - GOAL.to)));
-    var eng = S.eng || { tdee: 2700 }, calib = eng.upd ? 'ricalcolato dal tuo peso il ' + new Date(eng.upd).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + (eng.prev ? ' (era ' + eng.prev + ')' : '') : 'stima iniziale: si corregge da sola dopo 2 settimane di pesate';
+    var eng = S.eng || { tdee: TDEE0 }, calib = eng.upd ? 'ricalcolato dal tuo peso il ' + new Date(eng.upd).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + (eng.prev ? ' (era ' + eng.prev + ')' : '') : 'stima iniziale: si corregge da sola dopo 2 settimane di pesate';
     var real = t && t.slope !== null ? r1(-t.slope * 7) + ' kg/sett.' : 'servono 2 settimane di dati';
     var row = function (l, v) { return '<div class="kv"><span>' + l + '</span><b>' + v + '</b></div>'; };
     return '<section class="goal"><div class="gh"><div><small>Obiettivo</small><b>' + GOAL.to + ' kg</b><span>entro fine maggio 2027</span></div><div style="text-align:right"><small>Peso di tendenza</small><b>' + r1(P.cur) + ' kg</b><span>' + (ks.length ? ks.length + ' pesate' : 'partenza') + '</span></div></div>' +
       '<div class="bar" style="height:10px;margin:12px 0 8px"><i style="width:' + (pct * 100) + '%;background:var(--ok)"></i></div>' +
       '<p class="gl">−' + r1(done) + ' kg fatti · mancano ' + r1(Math.max(0, P.cur - GOAL.to)) + ' kg in ' + Math.round(P.wl) + ' settimane</p>' +
       '<div class="kvs">' + row('Consumo stimato', eng.tdee + ' kcal/giorno') + row('Ritmo richiesto', r1(P.need) + ' kg/sett.') + row('Ritmo reale', real) + row('Media giornaliera', P.avg + ' kcal') +
-      row('Feriali', P.wd + ' kcal (palestra +80)') + row('Sabato e domenica', WE_KCAL + ' kcal') + (P.eta ? row('Arrivo previsto', P.eta.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })) : '') + '</div>' +
+      row('Palestra (lun, mer, ven)', P.day[0] + ' kcal') + row('Mar e gio (riposo)', P.day[1] + ' kcal') + row('Sabato e domenica', WE_KCAL + ' kcal') + (P.eta ? row('Arrivo previsto', P.eta.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })) : '') + '</div>' +
       (P.warn ? '<p class="gl warn">⚠️ ' + esc(P.warn) + '</p>' : '') +
       '<p class="gl">⚙️ ' + calib + '. Pesati la mattina a digiuno, anche tutti i giorni: conta la tendenza, non il singolo dato. Dopo il weekend da 3000 il lunedì sarai più pesante per acqua e carboidrati: è normale.</p>' +
       '<form class="wf" id="wform"><input id="wkg" type="text" inputmode="decimal" placeholder="Peso di oggi (kg)" aria-label="Peso di oggi in kg"><button class="chipbtn hi" type="submit">Salva</button></form>' +
