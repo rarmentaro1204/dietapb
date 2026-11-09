@@ -284,7 +284,7 @@ var RIC = /*RIC*/;
   function meals(who, i) {
     var w = D.WEEK[i], out = [];
     if (who === 'R') {
-      var col = cloneM(D.COL_R[w.colR]); col.key = 'col'; col.kind = 'col'; col.slot = w.colR === 'brioche' ? null : 'colR'; out.push(col);
+      var col = cloneM(D.COL_R[w.colR]); col.key = 'col'; col.kind = 'col'; col.slot = null; out.push(col);
       var pr = cloneM((w.active && D.PRA_R_ACT[w.praRk]) || D.PRA_R[w.praRk]); pr.time = '12:30'; pr.key = 'pra'; pr.kind = 'pra'; pr.slot = w.praRk === 'prcL' ? 'praL' : null;
       pr.label = pr.label.replace(/^Pranzo 12:30 — /, 'Pranzo — '); out.push(pr);
       var me = cloneM(D.MER_R); me.key = 'mer'; me.kind = 'mer'; if (w.active) addEx(me, D.MER_R.exAct); delete me.exAct; out.push(me);
@@ -314,7 +314,7 @@ var RIC = /*RIC*/;
   };
   function applyAdj(out, i) {
     var a = ADJ[i]; if (!a) return out;
-    if (a.colActive) { var c = cloneM(D.COL_R.active); c.key = 'col'; c.kind = 'col'; c.slot = 'colR'; out[0] = c; }
+    if (a.colActive) { var c = cloneM(D.COL_R.active); c.key = 'col'; c.kind = 'col'; c.slot = null; out[0] = c; }
     ['pra', 'mer', 'cen'].forEach(function (k) {
       (a[k] || []).forEach(function (x) { var m = out.filter(function (mm) { return mm.key === k; })[0]; if (!m) return;
         m.plus = (m.plus || []).concat([[x[0], x[1]]]); m.kcal += x[2]; m.p += x[3]; m.f += x[4]; m.c += x[5]; });
@@ -381,7 +381,7 @@ var RIC = /*RIC*/;
     [/frutta|mela|pera|kiwi|mandarin|cachi|melagrana/i, 55, 0.5, 13, 0.2], [/riso|pasta|farro|orzo|quinoa|avena|farina/i, 355, 11, 70, 2.5]
   ];
   function foodOf(n) { if (/Yogurt|Proteina|Parmigiano|Mozzarella|Uov|Legumi/i.test(n)) return null; for (var j = 0; j < FOOD.length; j++) if (FOOD[j][0].test(n)) return FOOD[j]; return null; }
-  function scalables(out) { var L = []; out.forEach(function (m) { ['items', 'plus', 'extra'].forEach(function (f) { (m[f] || []).forEach(function (it) {
+  function scalables(out) { var L = []; out.forEach(function (m) { if (m.key === 'col') return; ['items', 'plus', 'extra'].forEach(function (f) { (m[f] || []).forEach(function (it) {
     var fd = foodOf(it[0]), q = String(it[1]).match(/^(\d+(?:[.,]\d+)?)\s*(g|ml)$/); if (fd && q) L.push({ m: m, it: it, fd: fd, g: parseFloat(q[1].replace(',', '.')), u: q[2] }); }); }); }); return L; }
   function scaleDay(out, kcal) {
     var base = 0; out.forEach(function (m) { base += m.kcal; });
