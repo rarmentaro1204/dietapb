@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F6F1E9">
+<title>Piano Alimentare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F6F1E9; --surface: #FFFDF9; --surface2: #EFE8DC; --ink: #23201B; --muted: #6E665A; --line: #E3DACB;
+  --accent: #C2562B; --accent-ink: #fff; --ok: #3B7A57; --ok-soft: #E2EFE6;
+  --p: #C2562B; --c: #D9A23A; --f: #5C7FA3;
+  --col: #B07D3A; --pra: #3B6E52; --mer: #7B9B6A; --cen: #4A6E8C;
+  --shadow: 0 1px 2px rgba(60,45,20,.06), 0 6px 20px rgba(60,45,20,.06);
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; --display: 'Fraunces', Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #171512; --surface: #211E1A; --surface2: #2B2722; --ink: #F2ECE2; --muted: #A79E90; --line: #37322B;
+  --accent: #E07A4F; --ok: #6DBB8C; --ok-soft: #22332A; --p: #E07A4F; --c: #E0B65A; --f: #85A7CC; --shadow: none; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #171512; --surface: #211E1A; --surface2: #2B2722; --ink: #F2ECE2; --muted: #A79E90; --line: #37322B;
+  --accent: #E07A4F; --ok: #6DBB8C; --ok-soft: #22332A; --p: #E07A4F; --c: #E0B65A; --f: #85A7CC; --shadow: none; color-scheme: dark; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.4; }
+body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+button { font: inherit; color: inherit; cursor: pointer; }
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+h1, h2, h3 { margin: 0; }
+
+/* header */
+.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding-top: env(safe-area-inset-top); border-bottom: 1px solid transparent; }
+.top.sc { border-bottom-color: var(--line); }
+.hrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0 8px; }
+.brand small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.brand h1 { font-family: var(--display); font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
+.who { display: flex; background: var(--surface2); border-radius: 999px; padding: 3px; }
+.who button { border: 0; background: transparent; padding: 7px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.who button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 4px 0 12px; }
+.dchip { border: 0; background: transparent; border-radius: 14px; padding: 6px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 1px; min-height: 58px; }
+.dchip .dn { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+.dchip .dd { font-family: var(--display); font-size: 20px; font-weight: 700; }
+.dchip .di { font-size: 10px; height: 12px; line-height: 12px; }
+.dchip.today .dd { color: var(--accent); }
+.dchip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.dchip[aria-pressed="true"] .dn { color: inherit; opacity: .7; }
+.dchip[aria-pressed="true"].today .dd { color: inherit; }
+
+/* hero */
+.hero { background: var(--surface); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); display: grid; grid-template-columns: 112px 1fr; gap: 16px; align-items: center; margin-top: 4px; }
+.ring { position: relative; width: 112px; height: 112px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .rv { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.ring .rv b { font-family: var(--display); font-size: 26px; line-height: 1; }
+.ring .rv span { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.macros { display: flex; flex-direction: column; gap: 9px; }
+.mac { display: grid; grid-template-columns: 74px 1fr auto; gap: 8px; align-items: center; font-size: 13px; }
+.mac .ml { font-weight: 600; }
+.bar { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 99px; transition: width .4s ease; }
+.mac .mv { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; white-space: nowrap; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 2px; }
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 999px; background: var(--surface2); color: var(--ink); text-decoration: none; border: 0; }
+.tag.walk { background: #E7EFE3; color: #2F5A3A; }
+.tag.gym { background: #F6E1D6; color: #8A3412; }
+.tag.free { background: #ECE5F3; color: #55407A; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag.walk { background: #22332A; color: #A9D8B6; } :root:not([data-theme="light"]) .tag.gym { background: #3A261C; color: #F2B597; } :root:not([data-theme="light"]) .tag.free { background: #2C253A; color: #CDB8EE; } }
+
+/* meals */
+.sect { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 10px; }
+.sect h2 { font-family: var(--display); font-size: 20px; }
+.sect span { font-size: 13px; color: var(--muted); }
+.timeline { display: flex; flex-direction: column; gap: 10px; }
+.meal { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; position: relative; }
+.meal::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--mc, var(--accent)); }
+.meal.next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+.mh { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 14px 14px 14px 18px; width: 100%; border: 0; background: transparent; text-align: left; }
+.mh .mt { font-size: 12px; color: var(--muted); font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent); color: var(--accent-ink); text-transform: uppercase; letter-spacing: .03em; }
+.mh h3 { font-size: 17px; font-weight: 700; margin-top: 2px; }
+.mh .mk { font-size: 13px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.eat { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); display: grid; place-items: center; flex: none; transition: all .2s; }
+.eat svg { width: 22px; height: 22px; opacity: .25; }
+.eat[aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: #fff; }
+.eat[aria-pressed="true"] svg { opacity: 1; }
+.meal.done .mh h3 { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
+.mb { padding: 0 14px 14px 18px; display: none; }
+.meal.open .mb { display: block; }
+.ing { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ing li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px dashed var(--line); font-size: 15px; }
+.ing li span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ing li.extra { color: var(--ok); }
+.ing li.extra span:first-child::after { content: ' · camminata'; font-size: 12px; opacity: .8; }
+.ing li.plus { color: var(--accent); }
+.ing .sc { color: var(--accent); }
+.ing li.plus span:first-child::after { content: ' · revisione'; font-size: 12px; opacity: .8; }
+.hint { margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+.ing li small { display: block; color: var(--muted); font-size: 12px; }
+.mfoot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chipbtn { border: 1px solid var(--line); background: var(--surface2); padding: 8px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.chipbtn.hi { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.mmac { display: flex; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 10px; font-variant-numeric: tabular-nums; }
+.mmac b { color: var(--ink); font-weight: 600; }
+
+/* supplements */
+.supp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sp { border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 12px; text-align: left; display: grid; grid-template-columns: 1fr 24px; gap: 4px; align-items: center; }
+.sp b { font-size: 14px; } .sp small { grid-column: 1; color: var(--muted); font-size: 12px; }
+.sp .ck { grid-row: 1 / span 2; grid-column: 2; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; }
+.sp[aria-pressed="true"] { background: var(--ok-soft); border-color: transparent; }
+.sp[aria-pressed="true"] .ck { background: var(--ok); border-color: var(--ok); color: #fff; }
+.sp .ck svg { width: 14px; height: 14px; opacity: 0; } .sp[aria-pressed="true"] .ck svg { opacity: 1; }
+.rules { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 4px 14px; box-shadow: var(--shadow); }
+.rules summary { cursor: pointer; font-weight: 700; padding: 12px 0; }
+.rules ul { margin: 0 0 12px; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 8px; }
+.note { font-size: 13px; color: var(--muted); background: var(--surface2); border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
+.note b { color: var(--ink); }
+
+/* week view */
+.wk { display: flex; flex-direction: column; gap: 10px; }
+.wd { border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 14px; text-align: left; width: 100%; box-shadow: var(--shadow); }
+.wd.today { border-color: var(--accent); }
+.wd .wh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.wd h3 { font-family: var(--display); font-size: 19px; }
+.wd .wk2 { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.wd .wm { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.wd .wm span { font-size: 12px; background: var(--surface2); border-radius: 10px; padding: 7px 8px; line-height: 1.25; }
+.wd .wm span b { display: block; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; margin-bottom: 2px; }
+.wd .tags { margin: 8px 0 0; }
+
+/* shop */
+.prog { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; box-shadow: var(--shadow); }
+.prog .bar { flex: 1; height: 10px; }
+.prog b { font-variant-numeric: tabular-nums; }
+.tools { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.cat { margin-top: 18px; }
+.cat h3 { font-size: 15px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.cat h3 small { color: var(--muted); font-weight: 600; }
+.it { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 11px 12px; margin-bottom: 6px; }
+.it .ck { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--line); display: grid; place-items: center; }
+.it .ck svg { width: 16px; height: 16px; opacity: 0; }
+.it .q { font-size: 13px; color: var(--muted); text-align: right; max-width: 45vw; }
+.it[aria-pressed="true"] { opacity: .55; }
+.it[aria-pressed="true"] .ck { background: var(--ok); border-color: var(--ok); color: #fff; }
+.it[aria-pressed="true"] .ck svg { opacity: 1; }
+.it[aria-pressed="true"] .nm { text-decoration: line-through; }
+
+/* recipes */
+.search { width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 12px 14px; font: inherit; color: var(--ink); }
+.filters { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: none; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+.filters::-webkit-scrollbar { display: none; }
+.fchip { flex: none; border: 1px solid var(--line); background: var(--surface); padding: 8px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+.fchip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.rgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.rc { border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow); min-height: 128px; }
+.rc .re { font-size: 30px; line-height: 1; }
+.rc b { font-size: 14px; line-height: 1.25; }
+.rc small { color: var(--muted); font-size: 12px; margin-top: auto; }
+.goal { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); margin-top: 8px; }
+.goal .gh { display: flex; justify-content: space-between; gap: 12px; }
+.goal small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.goal b { font-family: var(--display); font-size: 28px; display: block; line-height: 1.1; }
+.goal .gh span { font-size: 13px; color: var(--muted); }
+.gl { margin: 6px 0 0; font-size: 14px; color: var(--muted); } .gl b { color: var(--ink); font-family: var(--font); font-size: 14px; display: inline; }
+.kvs { margin-top: 10px; border-top: 1px solid var(--line); }
+.kv { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.kv span { color: var(--muted); } .kv b { font-family: var(--font); font-size: 14px; display: inline; }
+.warn { color: #9A3B12; }
+.wh summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 12px 0 4px; }
+.del { border: 0; background: transparent; color: var(--muted); font-size: 18px; padding: 0 4px; }
+.wf { display: flex; gap: 8px; margin-top: 12px; } .wf input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 10px 12px; font: inherit; color: var(--ink); }
+.empty { text-align: center; color: var(--muted); padding: 30px 10px; }
+
+/* cal15 */
+.cday { border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 12px 14px; margin-bottom: 8px; }
+.cday.now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.cday.past { opacity: .6; }
+.cday h3 { font-size: 15px; display: flex; justify-content: space-between; gap: 8px; }
+.cday h3 small { color: var(--muted); font-weight: 600; }
+.crow { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.crow button { border: 0; background: var(--surface2); border-radius: 10px; padding: 8px 10px; text-align: left; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+.crow button em { font-style: normal; font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; width: 64px; flex: none; }
+
+/* bottom nav */
+.nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+.nav .wrap { display: grid; grid-template-columns: repeat(5, 1fr); padding: 0 6px; }
+.nb { border: 0; background: transparent; padding: 9px 0 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.nb svg { width: 24px; height: 24px; }
+.nb[aria-current="page"] { color: var(--accent); }
+
+/* sheet */
+.scrim { position: fixed; inset: 0; background: rgba(20,15,10,.45); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-height: 88vh; overflow: auto; background: var(--surface); border-radius: 24px 24px 0 0; transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.8,.2,1); padding: 8px 0 calc(24px + env(safe-area-inset-bottom)); }
+.sheet:not(.on) { visibility: hidden; transition: transform .28s cubic-bezier(.2,.8,.2,1), visibility 0s .28s; }
+.sheet.on { transform: none; }
+.grab { width: 40px; height: 5px; border-radius: 9px; background: var(--line); margin: 4px auto 10px; }
+.sh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.sh h2 { font-family: var(--display); font-size: 22px; line-height: 1.2; }
+.x { border: 0; background: var(--surface2); width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center; }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 4px; }
+.steps { margin: 6px 0 0; padding-left: 0; list-style: none; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 8px 0; font-size: 15px; }
+.steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.sheet h4 { margin: 16px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.rlist { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.rli { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 12px; text-align: left; width: 100%; }
+.rli .re { font-size: 26px; }
+.rli small { display: block; color: var(--muted); font-size: 12px; }
+.rli.pick { border-color: var(--accent); }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top" id="top">
+  <div class="wrap">
+    <div class="hrow">
+      <div class="brand"><small id="season">Piano adattivo</small><h1 id="htitle">Oggi</h1></div>
+      <div class="who" role="group" aria-label="Persona">
+        <button type="button" data-who="R" aria-pressed="true">Roberto</button>
+        <button type="button" data-who="F" aria-pressed="false">Francesca</button>
+      </div>
+    </div>
+    <div class="week" id="week" role="group" aria-label="Giorno della settimana"></div>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<nav class="nav" aria-label="Sezioni">
+  <div class="wrap">
+    <button type="button" class="nb" data-tab="oggi" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Oggi</button>
+    <button type="button" class="nb" data-tab="settimana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Settimana</button>
+    <button type="button" class="nb" data-tab="spesa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2 10h10l2-7H7"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="16.5" cy="19" r="1.4"/></svg>Spesa</button>
+    <button type="button" class="nb" data-tab="ricette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M9 9c0-2 2-2 2-4M14 9c0-2 2-2 2-4"/></svg>Ricette</button>
+    <button type="button" class="nb" data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></svg>15 giorni</button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle"><div class="grab"></div><div class="wrap" id="sheetBody"></div></section>
+
+<script>
+var DATA = {"C":{"col":"#B07D3A","pra":"#3B6E52","mer":"#7B9B6A","cenPol":"#8C4A4A","cenSal":"#4A6E8C","cenCar":"#7A4A2A","cenTofu":"#4A8C6A","cenLib":"#7A6B8C"},"FR":["Mela","Pera","Kiwi","Mandarino","Banana","Melagrana","Cachi"],"FF":["Mela","Pera","Kiwi","Mandarino","Banana","Mela","Pera"],"COL_R":{"base":{"time":"10:00","label":"Colazione","kcal":300,"p":27,"f":5.5,"c":36,"items":[["Yogurt magro","150 g"],["Mix cereali 60/40 ★","30 g"],["Proteina soia GymBeam","25 g"]]},"active":{"time":"10:00","label":"Colazione","kcal":340,"p":28.5,"f":6,"c":45,"items":[["Yogurt magro","150 g"],["Mix cereali 60/40 ★","45 g"],["Proteina soia GymBeam","25 g"]]},"brioche":{"time":"10:00","label":"Colazione — brioche pasticceria","kcal":320,"p":6,"f":16,"c":38,"items":[["Brioche vuota o marmellata","1 ~75-80 g"]]}},"PRA_R":{"prcL":{"label":"Pranzo 12:30 — Legumi","kcal":680,"p":56,"f":21,"c":62,"veg":"zucchine + spinaci","items":[["Farro o orzo","20 g"],["Legumi secchi","40 g"],["Parmigiano","60 g"],["Verdura ‡","200 g"],["Yogurt greco 0%","150 g"],["Frutta ❄️","120 g"]]},"prcM":{"label":"Pranzo 12:30 — Mozzarella","kcal":660,"p":58,"f":21.5,"c":58,"veg":"zucchine + piselli","items":[["Riso integrale","22 g"],["Mozzarella light","160 g"],["Olio EVO","6 ml"],["Verdura ‡","200 g"],["Yogurt greco 0%","150 g"],["Frutta ❄️","120 g"]]},"prcU":{"label":"Pranzo 12:30 — Uova","kcal":670,"p":54,"f":27,"c":54,"veg":"finocchi + spinaci","items":[["Quinoa","30 g"],["Uova","3 (150 g)"],["Parmigiano","20 g"],["Verdura ‡","200 g"],["Yogurt greco 0%","150 g"],["Frutta ❄️","120 g"]]},"libero":{"label":"Pranzo 12:30 — Libero","kcal":665,"p":45,"f":22,"c":65,"veg":null,"items":[["Pasto libero — macro indicativi",""],["Yogurt greco 0%","150 g"],["Frutta ❄️","120 g"]]}},"PRA_R_ACT":{"prcM":{"label":"Pranzo 12:30 — Mozzarella (+camminata)","kcal":795,"p":61,"f":22.5,"c":88,"veg":"zucchine + piselli","items":[["Riso integrale","22 g"],["Mozzarella light","160 g"],["Olio EVO","6 ml"],["Verdura ‡","200 g"],["Yogurt greco 0%","150 g"],["Frutta ❄️","120 g"]],"extra":[["+ Riso integrale extra","25 g"],["+ Frutta extra","60 g"]]},"prcU":{"label":"Pranzo 12:30 — Uova (+camminata)","kcal":805,"p":57,"f":28.5,"c":82,"veg":"finocchi + spinaci","items":[["Quinoa","30 g"],["Uova","3 (150 g)"],["Parmigiano","20 g"],["Verdura ‡","200 g"],["Yogurt greco 0%","150 g"],["Frutta ❄️","120 g"]],"extra":[["+ Quinoa extra","25 g"],["+ Frutta extra","60 g"]]}},"MER_R":{"time":"17:00","label":"Merenda","kcal":170,"p":4,"f":7.5,"c":20,"items":[["Fette biscottate integrali","15 g"],["Frutta secca","10 g"],["Frutta ❄️","80 g"]],"exAct":{"items":[["+ Fette biscottate","10 g"],["+ Frutta extra","40 g"]],"kcal":55,"p":1.2,"f":0.8,"c":10}},"CEN_R":{"cenPol":{"time":"19:30","label":"Cena — Pollo / Tacchino","kcal":450,"p":60,"f":20,"c":5,"veg":"broccoli + zucchine","items":[["Petto di pollo (o tacchino)","190 g"],["Olio EVO","14 ml"],["Verdura ‡","200 g"]]},"cenSal":{"time":"19:30","label":"Cena — Salmone","kcal":468,"p":48,"f":29,"c":5.5,"veg":"spinaci + finocchi","items":[["Salmone","210 g"],["Verdura ‡","200 g"]],"exAct":{"items":[["+ Pasta integrale","20 g"]],"kcal":68,"p":2.5,"f":0.5,"c":13}},"cenCar":{"time":"19:30","label":"Cena — Carne Rossa","kcal":460,"p":58,"f":22,"c":4,"veg":"radicchio + zucchine","items":[["Bistecca / vitello / manzo","180 g"],["Olio EVO","10 ml"],["Verdura ‡","200 g"]],"exAct":{"items":[["+ Pasta integrale","20 g"]],"kcal":68,"p":2.5,"f":0.5,"c":13}},"cenTofu":{"time":"19:30","label":"Cena — Tofu","kcal":420,"p":38,"f":22,"c":18,"veg":"spinaci + piselli","items":[["Tofu naturale","200 g"],["Olio EVO","10 ml"],["Salsa di soia","15 ml"],["Verdura ‡","200 g"]]},"cenLib":{"time":"19:30","label":"Cena Libera 🎉","kcal":450,"p":55,"f":20,"c":12,"veg":null,"items":[["Pasto libero — punta su proteine + verdura",""],["Dolce solo se lo vuoi davvero",""]]}},"COL_F":{"colA":{"time":"8:00","label":"Colazione Tipo A","kcal":297,"p":21,"f":6.6,"c":38.7,"items":[["Fiocchi d'avena","30 g"],["Frutta secca","8 g"],["Yogurt greco 0%","150 g"],["Frutta ❄️","100 g"]]},"colB":{"time":"8:00","label":"Colazione Tipo B","kcal":317,"p":25.2,"f":7.4,"c":39.8,"items":[["Farina d'avena","20 g"],["Uovo","1 (50 g)"],["Yogurt 0,1%","150 g"],["Miele","8 g"],["Frutta ❄️","100 g"]]}},"SPU_F":{"time":"10:30","label":"Spuntino","kcal":138,"p":15.3,"f":0.5,"c":19.4,"items":[["Yogurt greco 0%","150 g"],["Frutta ❄️","100 g"]]},"PRA_F":{"pasta":{"time":"13:00","label":"Pranzo — Pasta integrale","kcal":420,"p":22,"f":8,"c":65,"veg":"zucchine + piselli","items":[["Pasta integrale","60 g"],["Olio EVO","5 ml"],["Parmigiano","20 g"],["Verdura §","150 g"]]},"pasta2":{"time":"13:00","label":"Pranzo — Pasta integrale","kcal":430,"p":24,"f":9,"c":63,"veg":"spinaci + finocchi","items":[["Pasta integrale","60 g"],["Olio EVO","5 ml"],["Ricotta light","40 g"],["Verdura §","150 g"]]},"riso":{"time":"13:00","label":"Pranzo — Riso integrale","kcal":410,"p":18,"f":9,"c":62,"veg":"zucchine + spinaci","items":[["Riso integrale","60 g"],["Olio EVO","6 ml"],["Parmigiano","25 g"],["Verdura §","150 g"]]},"legumi":{"time":"13:00","label":"Pranzo — Legumi","kcal":418,"p":28.9,"f":10,"c":48,"veg":"spinaci + finocchi","items":[["Lenticchie o ceci (secchi)","40 g"],["Farro","15 g"],["Olio EVO","3 ml"],["Verdura §","150 g"]]},"libero":{"time":"13:00","label":"Pranzo libero","kcal":420,"p":20,"f":10,"c":55,"veg":null,"items":[["Pasto libero — macro indicativi",""]]}},"MER_F":{"time":"16:30","label":"Merenda","kcal":192,"p":4,"f":5.5,"c":33.2,"items":[["Fette biscottate integrali","25 g"],["Frutta secca","6 g"],["Frutta ❄️","100 g"]]},"CEN_F":{"cenPol":{"time":"20:00","label":"Cena — Pollo / Tacchino","kcal":389,"p":46.5,"f":18.5,"c":8.2,"items":[["Petto di pollo (o tacchino)","140 g"],["Olio EVO","13 ml"],["Verdura §","150 g"]]},"cenSal":{"time":"20:00","label":"Cena — Salmone","kcal":406,"p":37.6,"f":22,"c":13.2,"items":[["Salmone","160 g"],["Verdura §","150 g"]]},"cenPass":{"time":"20:00","label":"Cena — Passato di verdura + proteina","kcal":320,"p":22,"f":10,"c":32,"items":[["Passato di verdura (zucchine/piselli/finocchi)","350 ml"],["Uovo sodo","1 (50 g)"],["Parmigiano","20 g"],["Fette biscottate","10 g"]]}},"WEEK":[{"day":"Lunedì","active":false,"colR":"base","praRk":"prcL","cenR":"cenPol","colFk":"colA","praFk":"pasta","cenF":"cenPol"},{"day":"Martedì","active":true,"colR":"active","praRk":"prcM","cenR":"cenSal","colFk":"colB","praFk":"pasta2","cenF":"cenSal"},{"day":"Mercoledì","active":false,"colR":"base","praRk":"prcU","cenR":"cenCar","colFk":"colA","praFk":"riso","cenF":"cenPass"},{"day":"Giovedì","active":true,"colR":"active","praRk":"prcL","cenR":"cenTofu","colFk":"colA","praFk":"legumi","cenF":"cenPol"},{"day":"Venerdì","active":false,"colR":"base","praRk":"prcM","cenR":"cenPol","colFk":"colB","praFk":"pasta","cenF":"cenSal"},{"day":"Sabato","active":false,"colR":"base","praRk":"prcU","cenR":"cenLib","colFk":"colA","praFk":"pasta2","cenF":"cenPass"},{"day":"Domenica","active":false,"colR":"brioche","praRk":"libero","cenR":"cenCar","colFk":"colA","praFk":"libero","cenF":"cenPol"}],"SHOP":[{"cat":"☕ Colazione Roberto (IF)","items":[["Yogurt magro","900 g"],["Selex Multicereali al Miele","~200 g"],["Kellogg's Special K Granola Dark Chocolate","~135 g"],["Proteina di soia GymBeam","150 g (6 misurini)"],["Brioche di pasticceria (fresca)","1 — compra il sabato per domenica"]]},{"cat":"🥣 Colazione Francesca","items":[["Fiocchi d'avena","150 g"],["Farina d'avena","40 g"],["Miele","16 g"]]},{"cat":"🌾 Cereali e carboidrati","items":[["Pasta integrale","~280 g (Francesca 4 porzioni)"],["Riso integrale","~100 g (Fra 1 porz.) + 22g×4 Rob"],["Farro o orzo (secco)","~70 g"],["Quinoa","~60 g"],["Legumi secchi (lenticchie/ceci)","~180 g"]]},{"cat":"🥩 Proteine","items":[["Uova","10 pz"],["Petto di pollo o tacchino","~800 g"],["Salmone (filetto)","~750 g"],["Bistecca / vitello / manzo","~360 g (2 cene Roberto)"],["Tofu naturale","~200 g (1 cena Roberto)"],["Parmigiano","~250 g"],["Mozzarella light","~320 g"],["Ricotta light","~80 g (Francesca)"]]},{"cat":"🧴 Latticini e dispensa","items":[["Yogurt greco 0%","~2.5 kg"],["Yogurt 0,1% (Francesca)","~300 g"],["Frutta secca mista","~150 g"],["Fette biscottate integrali","~300 g"],["Olio EVO","~140 ml"],["Salsa di soia","~60 ml"]]},{"cat":"🥦 Verdura di stagione invernale","season":true,"items":[["Zucchine","~1.2 kg"],["Spinaci","~1.1 kg"],["Finocchi","~750 g"],["Piselli (surgelati ok)","~500 g"],["Broccoli (solo Roberto)","~400 g"],["Cavolfiore (solo Roberto)","~300 g"],["Radicchio (solo Roberto)","~200 g"],["Carciofi (solo Roberto, opz.)","~200 g"],["Verdure miste per passato (Fra)","~700 g (zucchine, piselli, finocchi)"]]},{"cat":"🍎 Frutta di stagione invernale","season":true,"items":[["Mele","~1.2 kg"],["Pere","~800 g"],["Kiwi","~600 g"],["Mandarini / Clementine","~600 g"],["Banane","~400 g"],["Cachi (solo Roberto)","~300 g"],["Melagrana (solo Roberto, opz.)","~2 pz"]]}],"CAL15":[{"g":1,"nome":"Lun 1","isWE":false,"colR":"cR03","colF":"cF01","praRid":"pL01","praFid":"fP01","cenaRid":"eP02","cenaFid":"eP02"},{"g":2,"nome":"Mar 1","isWE":false,"colR":"cR04","colF":"cF02","praRid":"pL04","praFid":"fP08","cenaRid":"eS01","cenaFid":"eS01"},{"g":3,"nome":"Mer 1","isWE":false,"colR":"cR11","colF":"cF06","praRid":"pL05","praFid":"fR01","cenaRid":"eC01","cenaFid":"eC01","notaF":"Francesca: passato sera"},{"g":4,"nome":"Gio 1","isWE":false,"colR":"cR05","colF":"cF03","praRid":"pL08","praFid":"fP03","cenaRid":"eT01","cenaFid":"fPass01"},{"g":5,"nome":"Ven 1","isWE":false,"colR":"cR06","colF":"cF11","praRid":"pL02","praFid":"fP05","cenaRid":"eP04","cenaFid":"eP04"},{"g":6,"nome":"Sab 1","isWE":true,"colR":"cR08","colF":"cF04","praRid":"pL03","praFid":"fP07","cenaRid":"eS03","cenaFid":"eS03"},{"g":7,"nome":"Dom 1","isWE":true,"colR":"cR09","colF":"cF10","praRid":"pL06","praFid":"fR03","cenaRid":"eC03","cenaFid":"eC03"},{"g":8,"nome":"Lun 2","isWE":false,"colR":"cR13","colF":"cF14","praRid":"pL07","praFid":"fP02","cenaRid":"eP07","cenaFid":"eP07"},{"g":9,"nome":"Mar 2","isWE":false,"colR":"cR01","colF":"cF09","praRid":"pL10","praFid":"fP06","cenaRid":"eS04","cenaFid":"eS04"},{"g":10,"nome":"Mer 2","isWE":false,"colR":"cR15","colF":"cF12","praRid":"pL11","praFid":"fR04","cenaRid":"eC04","cenaFid":"fPass02"},{"g":11,"nome":"Gio 2","isWE":false,"colR":"cR02","colF":"cF08","praRid":"pL14","praFid":"fP08","cenaRid":"eT02","cenaFid":"fPass03"},{"g":12,"nome":"Ven 2","isWE":false,"colR":"cR10","colF":"cF15","praRid":"pL13","praFid":"fP01","cenaRid":"eP05","cenaFid":"eP05"},{"g":13,"nome":"Sab 2","isWE":true,"colR":"cR14","colF":"cF07","praRid":"pL09","praFid":"fP07","cenaRid":"eS08","cenaFid":"eS08"},{"g":14,"nome":"Dom 2","isWE":true,"colR":"cR12","colF":"cF13","praRid":"pL12","praFid":"fR03","cenaRid":"eC05","cenaFid":"eC05"},{"g":15,"nome":"Lun 3","isWE":false,"colR":"cR07","colF":"cF05","praRid":"pL15","praFid":"fP03","cenaRid":"eT03","cenaFid":"fPass04"}]};
+var RIC = [{"id":"cR01","slot":"colR","p":"R","we":false,"e":"🥣","n":"Yogurt + cereali classico","min":3,"ing":[["Yogurt magro","150 g"],["Mix cereali ★","30 g"],["Proteina soia","25 g"]],"steps":["Versa lo yogurt.","Aggiungi cereali e proteina sciolta in poca acqua."],"note":"Base del piano."},{"id":"cR02","slot":"colR","p":"R","we":false,"e":"🍌","n":"Yogurt banana e cereali","min":4,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Banana","½"],["Proteina soia","25 g"]],"steps":["Schiaccia banana con yogurt e proteina.","Aggiungi cereali sopra."],"note":"Banana matura = dolcezza naturale."},{"id":"cR03","slot":"colR","p":"R","we":false,"e":"🍎","n":"Yogurt mela e cannella","min":5,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Mela","½ a cubetti"],["Cannella","pizzico"],["Proteina soia","25 g"]],"steps":["Taglia mela.","Mescola yogurt + proteina + cannella.","Aggiungi mela e cereali."],"note":"Cannella aiuta la glicemia."},{"id":"cR04","slot":"colR","p":"R","we":false,"e":"🥝","n":"Yogurt kiwi e granola","min":4,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Kiwi","1"],["Proteina soia","25 g"]],"steps":["Affetta kiwi.","Mescola yogurt e proteina.","Disponi kiwi e cereali."],"note":"Vitamina C."},{"id":"cR05","slot":"colR","p":"R","we":false,"e":"🍊","n":"Yogurt mandarino","min":5,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Mandarino","1"],["Proteina soia","25 g"]],"steps":["Pela mandarino.","Mescola yogurt e proteina.","Aggiungi frutto e cereali."],"note":"Stagionalissimo."},{"id":"cR06","slot":"colR","p":"R","we":false,"e":"🍐","n":"Yogurt pera e noci","min":5,"ing":[["Yogurt magro","150 g"],["Mix cereali","20 g"],["Pera","½"],["Noci","5 g"],["Proteina soia","25 g"]],"steps":["Taglia pera.","Mescola yogurt e proteina.","Aggiungi pera, cereali, noci."],"note":"Omega-3 dalle noci."},{"id":"cR07","slot":"colR","p":"R","we":true,"e":"🧁","n":"Overnight oats proteici","min":8,"ing":[["Yogurt magro","150 g"],["Fiocchi d'avena","30 g"],["Proteina soia","25 g"],["Miele","5 g"],["Frutta","80 g"]],"steps":["Sera: mescola yogurt + avena + proteina + miele in barattolo.","Frigo tutta la notte.","Mattino: aggiungi frutta."],"note":"Zero lavoro al mattino."},{"id":"cR08","slot":"colR","p":"R","we":true,"e":"🍫","n":"Yogurt cacao e banana","min":6,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Cacao amaro","5 g"],["Banana","½"],["Proteina soia","25 g"],["Miele","3 g"]],"steps":["Frulla yogurt + proteina + cacao + miele.","Schiaccia banana e unisci.","Cereali sopra."],"note":"Effetto budino."},{"id":"cR09","slot":"colR","p":"R","we":true,"e":"🫙","n":"Yogurt bowl agrumi","min":10,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Kiwi","1"],["Mandarino","1"],["Proteina soia","25 g"],["Miele","3 g"]],"steps":["Mescola yogurt + proteina + miele.","Disponi frutta a fette.","Spargi cereali."],"note":"Presentazione weekend."},{"id":"cR10","slot":"colR","p":"R","we":false,"e":"🔥","n":"Yogurt con pera scaldata","min":8,"ing":[["Yogurt magro","150 g"],["Pera","½"],["Mix cereali","25 g"],["Proteina soia","25 g"],["Cannella","pizzico"]],"steps":["Scalda pera in padella 2 min con cannella.","Lascia intiepidire.","Versa su yogurt + proteina + cereali."],"note":"Pera calda è un'altra cosa."},{"id":"cR11","slot":"colR","p":"R","we":false,"e":"🍋","n":"Yogurt limone e miele","min":3,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Succo limone","½"],["Proteina soia","25 g"],["Miele","3 g"]],"steps":["Mescola yogurt + proteina + limone + miele.","Aggiungi cereali."],"note":"Fresco anche d'inverno."},{"id":"cR12","slot":"colR","p":"R","we":true,"e":"🎂","n":"Cheesecake bowl","min":10,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Proteina soia","25 g"],["Miele","5 g"],["Frutta","80 g"],["Vanillina","pizzico"]],"steps":["Mescola yogurt + proteina + miele + vanillina.","Cereali sul fondo.","Crema sopra e frutta."],"note":"Simula una cheesecake."},{"id":"cR13","slot":"colR","p":"R","we":false,"e":"🍯","n":"Yogurt miele e frutta secca","min":3,"ing":[["Yogurt magro","150 g"],["Mix cereali","25 g"],["Miele","5 g"],["Noci o mandorle","8 g"],["Proteina soia","25 g"]],"steps":["Mescola yogurt + proteina + miele.","Aggiungi cereali e frutta secca."],"note":"Tre minuti cronometrati."},{"id":"cR14","slot":"colR","p":"R","we":true,"e":"🌴","n":"Yogurt bowl tropicale invernale","min":8,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Banana","½"],["Kiwi","1"],["Proteina soia","25 g"],["Cocco grattugiato","5 g"]],"steps":["Mescola yogurt e proteina.","Affetta banana e kiwi.","Disponi in poke bowl + cereali + cocco."],"note":"Look instagrammabile."},{"id":"cR15","slot":"colR","p":"R","we":false,"e":"🍂","n":"Yogurt cachi e cannella","min":5,"ing":[["Yogurt magro","150 g"],["Mix cereali","30 g"],["Cachi","½ maturo"],["Cannella","pizzico"],["Proteina soia","25 g"]],"steps":["Schiaccia cachi maturo.","Mescola con yogurt e proteina.","Cereali e cannella."],"note":"Il cachi maturo è dolcissimo."},{"id":"cF01","slot":"colF","p":"F","we":false,"e":"🥣","n":"Avena yogurt e mela","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Mela","½"],["Frutta secca","8 g"]],"steps":["Mescola avena e yogurt.","Aggiungi mela e frutta secca."],"note":"Tipo A classica."},{"id":"cF02","slot":"colF","p":"F","we":false,"e":"🍌","n":"Avena banana e mandorle","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Banana","½"],["Mandorle","8 g"]],"steps":["Schiaccia banana e mescola con yogurt e avena.","Aggiungi mandorle."],"note":"Banana dolcifica naturalmente."},{"id":"cF03","slot":"colF","p":"F","we":false,"e":"🍊","n":"Avena mandarino e miele","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Mandarino","1"],["Miele","8 g"],["Noci","8 g"]],"steps":["Pela mandarino.","Mescola yogurt + avena + miele.","Aggiungi mandarino e noci."],"note":"Invernale perfetta."},{"id":"cF04","slot":"colF","p":"F","we":true,"e":"🥞","n":"Pancake di avena e uovo","min":15,"ing":[["Farina d'avena","20 g"],["Uovo","1"],["Yogurt 0,1%","50 g"],["Miele","8 g"],["Frutta","100 g"]],"steps":["Mescola farina + uovo + yogurt.","Cuoci in padella antiaderente 2 min per lato.","Servi con miele e frutta."],"note":"Weekend: 2-3 pancakes proteici."},{"id":"cF05","slot":"colF","p":"F","we":false,"e":"🥚","n":"Porridge avena e uovo","min":8,"ing":[["Farina d'avena","20 g"],["Uovo","1"],["Latte scremato","100 ml"],["Miele","8 g"],["Frutta","100 g"]],"steps":["Scalda latte + avena 3 min.","Fuori fuoco: rompi uovo e mescola.","Miele e frutta."],"note":"Tipo B: uovo rende cremoso."},{"id":"cF06","slot":"colF","p":"F","we":false,"e":"🍐","n":"Avena pera e noci","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Pera","½"],["Noci","8 g"],["Cannella","pizzico"]],"steps":["Taglia pera.","Mescola avena + yogurt + cannella.","Aggiungi pera e noci."],"note":"Cannella esalta la pera."},{"id":"cF07","slot":"colF","p":"F","we":true,"e":"🧁","n":"Overnight oats Francesca","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Miele","8 g"],["Frutta secca","8 g"],["Frutta","100 g"]],"steps":["Sera: avena + yogurt + miele in barattolo.","Frigo.","Mattino: frutta e frutta secca."],"note":"Zero tempo al mattino."},{"id":"cF08","slot":"colF","p":"F","we":false,"e":"🍫","n":"Avena cacao e banana","min":6,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Cacao amaro","4 g"],["Banana","½"],["Miele","5 g"]],"steps":["Mescola yogurt + cacao + miele.","Aggiungi avena e banana schiacciata."],"note":"Golosa ma pulita."},{"id":"cF09","slot":"colF","p":"F","we":false,"e":"🍋","n":"Porridge limone e miele","min":8,"ing":[["Farina d'avena","20 g"],["Uovo","1"],["Latte scremato","100 ml"],["Miele","8 g"],["Kiwi","1"]],"steps":["Avena + latte 3 min.","Uovo fuori fuoco.","Miele e kiwi."],"note":"Agrumato e proteico."},{"id":"cF10","slot":"colF","p":"F","we":true,"e":"🍮","n":"Baked oats","min":20,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","100 g"],["Uovo","1"],["Miele","8 g"],["Frutta","100 g"]],"steps":["Mescola avena + yogurt + uovo + miele.","Versa in cocottina, inforna 180°C 15 min.","Servi con frutta."],"note":"Weekend perfetto."},{"id":"cF11","slot":"colF","p":"F","we":false,"e":"🥝","n":"Avena kiwi e mandorle","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Kiwi","1"],["Mandorle","8 g"]],"steps":["Affetta kiwi.","Mescola avena e yogurt.","Kiwi e mandorle sopra."],"note":"Verde e vitamina C."},{"id":"cF12","slot":"colF","p":"F","we":false,"e":"🍂","n":"Avena cachi e cannella","min":5,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Cachi","½"],["Cannella","pizzico"],["Noci","8 g"]],"steps":["Schiaccia cachi.","Mescola con yogurt e avena.","Cannella e noci."],"note":"Dolcezza naturale."},{"id":"cF13","slot":"colF","p":"F","we":true,"e":"🎄","n":"French toast d'avena","min":15,"ing":[["Farina d'avena","20 g"],["Uovo","1"],["Latte scremato","50 ml"],["Miele","8 g"],["Cannella","pizzico"],["Frutta","100 g"]],"steps":["Mescola farina + uovo + latte + cannella.","Cuoci come frittata 3 min per lato.","Taglia a strisce, miele e frutta."],"note":"Weekend creativo."},{"id":"cF14","slot":"colF","p":"F","we":false,"e":"🍯","n":"Avena miele e frutta secca","min":3,"ing":[["Fiocchi d'avena","30 g"],["Yogurt greco 0%","150 g"],["Miele","8 g"],["Frutta secca","8 g"]],"steps":["Mescola tutto."],"note":"La più veloce."},{"id":"cF15","slot":"colF","p":"F","we":false,"e":"🍊","n":"Porridge agrumi e uovo","min":8,"ing":[["Farina d'avena","20 g"],["Uovo","1"],["Latte scremato","100 ml"],["Miele","8 g"],["Mandarino","1"]],"steps":["Avena nel latte 3 min, uovo fuori fuoco.","Miele e mandarino."],"note":"Profumo d'inverno."},{"id":"pL01","slot":"praL","p":"RF","we":false,"e":"🫘","n":"Zuppa lenticchie e farro","min":20,"ing":[["Lenticchie secche","R:50g F:40g"],["Farro","R:20g F:15g"],["Zucchine","200g+150g"],["Parmigiano","R:60g F:0"]],"steps":["Cuoci lenticchie + farro in brodo 18 min.","Aggiungi zucchine a dadini ultimi 5 min.","Parmigiano sopra (solo Roberto)."],"note":"Scalda e sazia."},{"id":"pL02","slot":"praL","p":"RF","we":false,"e":"🥗","n":"Insalatona ceci e spinaci","min":10,"ing":[["Ceci cotti","R:80g F:60g"],["Farro cotto","R:20g F:15g"],["Spinaci freschi","150g+100g"],["Parmigiano","R:60g F:0"],["Olio EVO","Fra:3ml"]],"steps":["Unisci ceci + farro + spinaci.","Condisci con limone, parmigiano (Rob) e olio (Fra)."],"note":"Niente cottura se ceci precotti."},{"id":"pL03","slot":"praL","p":"RF","we":true,"e":"🍲","n":"Minestrone di fagioli invernale","min":35,"ing":[["Fagioli borlotti secchi","R:50g F:40g"],["Orzo","R:20g F:15g"],["Broccoli","100g (Rob)"],["Finocchi","100g"],["Spinaci","100g"],["Parmigiano","R:60g F:0"]],"steps":["Cuoci fagioli + orzo in brodo 25 min.","Aggiungi verdure ultimi 8 min.","Parmigiano (Rob)."],"note":"Prepara una pentola grande."},{"id":"pL04","slot":"praL","p":"RF","we":false,"e":"🌶️","n":"Lenticchie rosse al curry","min":15,"ing":[["Lenticchie rosse","R:50g F:40g"],["Farro","R:20g F:15g"],["Zucchine","200g+150g"],["Curry","1 cuc."],["Parmigiano","R:60g F:0"]],"steps":["Cuoci lenticchie rosse 12 min (no ammollo).","Aggiungi farro e zucchine.","Curry e parmigiano (Rob)."],"note":"Lenticchie rosse: veloci."},{"id":"pL05","slot":"praL","p":"RF","we":false,"e":"🥬","n":"Ceci e spinaci tiepidi","min":12,"ing":[["Ceci cotti","R:80g F:60g"],["Farro cotto","R:20g F:15g"],["Spinaci","200g+150g"],["Aglio","½"],["Parmigiano","R:60g F:0"]],"steps":["Appassisci spinaci con aglio 3 min.","Unisci ceci e farro, scalda 2 min.","Parmigiano (Rob)."],"note":"Se precotti: pronti in 8 min."},{"id":"pL06","slot":"praL","p":"RF","we":true,"e":"🫕","n":"Hummus + farro e finocchi","min":20,"ing":[["Ceci cotti","R:100g F:70g"],["Farro","R:20g F:15g"],["Tahini","10g"],["Limone","½"],["Finocchi crudi","150g"],["Parmigiano","R:30g F:0"]],"steps":["Frulla ceci + tahini + limone + aglio.","Cuoci farro. Affetta finocchi sottili.","Hummus su farro + finocchi + parmigiano (Rob)."],"note":"WOW-effect weekend."},{"id":"pL07","slot":"praL","p":"RF","we":false,"e":"🥦","n":"Fagioli cannellini e broccoli","min":15,"ing":[["Fagioli cannellini cotti","R:80g F:60g"],["Orzo","R:20g F:15g"],["Broccoli","200g (Rob)"],["Zucchine","150g (Fra)"],["Parmigiano","R:60g F:0"]],"steps":["Lessia broccoli 5 min.","Soffriggi aglio, unisci fagioli + verdure.","Orzo e parmigiano (Rob)."],"note":"Broccoli invernali."},{"id":"pL08","slot":"praL","p":"RF","we":false,"e":"🌿","n":"Lenticchie e finocchi al limone","min":18,"ing":[["Lenticchie verdi","R:50g F:40g"],["Farro","R:20g F:15g"],["Finocchi","150g+100g"],["Parmigiano","R:60g F:0"],["Limone","½"]],"steps":["Cuoci lenticchie + farro 18 min.","Finocchi a fette crudi o saltati 3 min.","Limone e parmigiano (Rob)."],"note":"Finocchi crudi = crunch."},{"id":"pL09","slot":"praL","p":"RF","we":true,"e":"🍜","n":"Zuppa ceci e rosmarino","min":30,"ing":[["Ceci secchi","R:50g F:40g"],["Orzo","R:20g F:15g"],["Rosmarino","2 rametti"],["Spinaci","150g"],["Parmigiano","R:60g F:0"],["Olio EVO","5ml"]],"steps":["Soffriggi aglio + rosmarino.","Ceci + orzo + brodo 25 min.","Frulla 1/3, spinaci 2 min, parmigiano (Rob)."],"note":"Classico toscano."},{"id":"pL10","slot":"praL","p":"RF","we":false,"e":"🫙","n":"Bowl ceci e cavolfiore","min":10,"ing":[["Ceci cotti","R:80g F:60g"],["Farro cotto","R:20g F:15g"],["Cavolfiore cotto","150g (Rob)"],["Zucchine","100g (Fra)"],["Parmigiano","R:60g F:0"]],"steps":["Unisci tutto freddo.","Condisci con limone e parmigiano (Rob)."],"note":"Assemblaggio 5 min."},{"id":"pL11","slot":"praL","p":"RF","we":false,"e":"🧅","n":"Lenticchie rosse e piselli","min":15,"ing":[["Lenticchie rosse","R:40g F:30g"],["Piselli","80g"],["Farro","R:20g F:15g"],["Parmigiano","R:60g F:0"],["Zucchine","150g+100g"]],"steps":["Cuoci lenticchie + piselli 12 min.","Salta zucchine 3 min.","Unisci tutto + parmigiano (Rob)."],"note":"Combo proteica velocissima."},{"id":"pL12","slot":"praL","p":"RF","we":true,"e":"🏺","n":"Falafel al forno con yogurt","min":30,"ing":[["Ceci cotti","R:100g F:70g"],["Farro","R:20g F:15g"],["Prezzemolo","mazzo"],["Cumino","1 cuc."],["Yogurt greco","R:150g F:100g"]],"steps":["Frulla ceci + prezzemolo + cumino, forma palline.","Inforna 200°C 20 min.","Falafel su farro + yogurt come salsa."],"note":"Weekend soddisfacente."},{"id":"pL13","slot":"praL","p":"RF","we":false,"e":"🟤","n":"Crema di fagioli e orzo","min":15,"ing":[["Fagioli cotti","R:80g F:60g"],["Orzo","R:20g F:15g"],["Spinaci","150g+100g"],["Parmigiano","R:60g F:0"],["Brodo","200ml"]],"steps":["Frulla metà fagioli con brodo.","Unisci fagioli interi + orzo + spinaci appassiti.","Parmigiano (Rob)."],"note":"Cremosa senza grassi."},{"id":"pL14","slot":"praL","p":"RF","we":false,"e":"🌰","n":"Ceci tostati su farro e finocchi","min":15,"ing":[["Ceci cotti","R:80g F:60g"],["Farro cotto","R:20g F:15g"],["Finocchi","150g+100g"],["Paprika","1 cuc."],["Parmigiano","R:60g F:0"]],"steps":["Tosta ceci in padella con paprika 5 min.","Affetta finocchi.","Farro + finocchi + ceci + parmigiano (Rob)."],"note":"Ceci croccanti = star del piatto."},{"id":"pL15","slot":"praL","p":"RF","we":true,"e":"🥘","n":"Stufato lenticchie e verdure","min":35,"ing":[["Lenticchie verdi","R:50g F:40g"],["Farro","R:20g F:15g"],["Carote","1"],["Sedano","1 costa"],["Spinaci","150g"],["Parmigiano","R:60g F:0"]],"steps":["Soffriggi carote + sedano.","Lenticchie + farro + brodo 25 min.","Spinaci 3 min. Parmigiano (Rob)."],"note":"Preparati la domenica per lunedì."},{"id":"fP01","slot":"praFPasta","p":"F","we":false,"e":"🍝","n":"Pasta integrale con zucchine","min":15,"ing":[["Pasta integrale","60 g"],["Zucchine","150 g"],["Olio EVO","5 ml"],["Parmigiano","20 g"],["Aglio","½"]],"steps":["Cuoci pasta al dente.","Salta zucchine con aglio e olio 5 min.","Unisci e parmigiano sopra."],"note":"Semplicità imbattibile."},{"id":"fP02","slot":"praFPasta","p":"F","we":false,"e":"🌿","n":"Pasta spinaci e ricotta","min":15,"ing":[["Pasta integrale","60 g"],["Spinaci","150 g"],["Ricotta light","40 g"],["Olio EVO","5 ml"]],"steps":["Cuoci pasta.","Appassisci spinaci, aggiungi ricotta.","Condisci la pasta."],"note":"Cremosa senza pesare."},{"id":"fP03","slot":"praFPasta","p":"F","we":false,"e":"🫛","n":"Pasta piselli e parmigiano","min":15,"ing":[["Pasta integrale","60 g"],["Piselli","100 g"],["Olio EVO","5 ml"],["Parmigiano","20 g"]],"steps":["Cuoci pasta con piselli negli ultimi 3 min.","Condisci con olio e parmigiano."],"note":"Dolcezza dei piselli."},{"id":"fP04","slot":"praFPasta","p":"F","we":true,"e":"🍋","n":"Pasta al limone e finocchi","min":20,"ing":[["Pasta integrale","60 g"],["Finocchi","150 g"],["Olio EVO","5 ml"],["Limone","½"],["Parmigiano","20 g"]],"steps":["Salta finocchi in olio 8 min.","Cuoci pasta, scola conservando un po' d'acqua.","Unisci finocchi + limone + parmigiano."],"note":"Finocchi al forno sono ancora meglio."},{"id":"fP05","slot":"praFPasta","p":"F","we":false,"e":"🫙","n":"Pasta fredda zucchine e menta","min":15,"ing":[["Pasta integrale","60 g"],["Zucchine","150 g"],["Olio EVO","5 ml"],["Menta","10 foglie"],["Limone","½"]],"steps":["Cuoci e raffredda pasta.","Salta zucchine 4 min.","Unisci freddo con olio + menta + limone."],"note":"Si mangia anche fredda."},{"id":"fP06","slot":"praFPasta","p":"F","we":false,"e":"🥦","n":"Pasta e piselli cremosi","min":15,"ing":[["Pasta integrale","60 g"],["Piselli","120 g"],["Ricotta light","30 g"],["Olio EVO","5 ml"]],"steps":["Frulla metà piselli con ricotta + olio = crema.","Cuoci pasta.","Condisci con crema e piselli interi."],"note":"Cremosa senza panna."},{"id":"fP07","slot":"praFPasta","p":"F","we":true,"e":"🎄","n":"Pasta invernale gratinata","min":30,"ing":[["Pasta integrale","60 g"],["Zucchine","100 g"],["Finocchi","80 g"],["Parmigiano","30 g"],["Olio EVO","5 ml"]],"steps":["Cuoci pasta al dente. Salta verdure.","Mescola tutto in teglia, parmigiano sopra.","Gratina 180°C 10 min."],"note":"Weekend: pasta al forno leggera."},{"id":"fP08","slot":"praFPasta","p":"F","we":false,"e":"🌱","n":"Pasta agli spinaci e aglio","min":12,"ing":[["Pasta integrale","60 g"],["Spinaci","150 g"],["Aglio","1"],["Olio EVO","5 ml"],["Parmigiano","20 g"]],"steps":["Cuoci pasta.","Salta spinaci con aglio e olio 3 min.","Unisci e parmigiano."],"note":"Aglio olio versione verde."},{"id":"fR01","slot":"praFRiso","p":"F","we":false,"e":"🍚","n":"Riso integrale zucchine e parmigiano","min":20,"ing":[["Riso integrale","60 g"],["Zucchine","150 g"],["Olio EVO","6 ml"],["Parmigiano","25 g"]],"steps":["Cuoci riso.","Salta zucchine 4 min.","Unisci con olio e parmigiano."],"note":"Base riso — classica."},{"id":"fR02","slot":"praFRiso","p":"F","we":false,"e":"🌿","n":"Riso piselli e limone","min":20,"ing":[["Riso integrale","60 g"],["Piselli","120 g"],["Olio EVO","6 ml"],["Limone","½"],["Parmigiano","25 g"]],"steps":["Cuoci riso con piselli ultimi 5 min.","Condisci con olio + limone + parmigiano."],"note":"Fresco e veloce."},{"id":"fR03","slot":"praFRiso","p":"F","we":true,"e":"🫕","n":"Risotto light finocchi","min":30,"ing":[["Riso integrale","60 g"],["Finocchi","150 g"],["Brodo veg.","300 ml"],["Olio EVO","6 ml"],["Parmigiano","25 g"]],"steps":["Soffriggi finocchi 3 min.","Tosta riso 1 min, aggiungi brodo a mestoli 25 min.","Manteca con parmigiano."],"note":"Weekend: risotto vero."},{"id":"fR04","slot":"praFRiso","p":"F","we":false,"e":"🥬","n":"Riso spinaci e ricotta","min":20,"ing":[["Riso integrale","60 g"],["Spinaci","150 g"],["Ricotta light","40 g"],["Olio EVO","5 ml"]],"steps":["Cuoci riso.","Appassisci spinaci, unisci ricotta.","Condisci il riso."],"note":"Cremosa e proteica."},{"id":"eP01","slot":"cenPol","p":"RF","we":false,"e":"🍗","n":"Pollo al limone e zucchine","min":20,"ing":[["Petto pollo","R:190g F:140g"],["Zucchine","200g+150g"],["Olio EVO","R:14ml F:13ml"],["Limone","1"],["Aglio","1"]],"steps":["Marina pollo 5 min con limone.","Salta in padella con olio e aglio 8 min per lato.","Aggiungi zucchine 5 min."],"note":"Classico veloce."},{"id":"eP02","slot":"cenPol","p":"RF","we":false,"e":"🌿","n":"Tacchino e spinaci saltati","min":15,"ing":[["Petto tacchino","R:190g F:140g"],["Spinaci","200g+150g"],["Olio EVO","R:14ml F:13ml"],["Aglio","1"]],"steps":["Cuoci tacchino 6 min per lato.","Spinaci + aglio coperto 3 min."],"note":"15 minuti netti."},{"id":"eP03","slot":"cenPol","p":"RF","we":true,"e":"🏺","n":"Pollo al forno con broccoli","min":40,"ing":[["Petto pollo intero","R:190g F:140g"],["Broccoli","200g (Rob)"],["Zucchine","150g (Fra)"],["Olio EVO","R:14ml F:13ml"],["Rosmarino","2 rametti"],["Limone","1"]],"steps":["Marina pollo con olio + limone + rosmarino 30 min.","Teglia con verdure. 200°C 30 min."],"note":"Weekend: cottura passiva."},{"id":"eP04","slot":"cenPol","p":"RF","we":false,"e":"🌶️","n":"Straccetti speziati","min":15,"ing":[["Petto pollo","R:190g F:140g"],["Zucchine","200g+150g"],["Olio EVO","R:14ml F:13ml"],["Paprika","1 cuc."],["Cumino","½ cuc."]],"steps":["Taglia pollo a straccetti, condisci con spezie.","Cuoci in padella 6 min.","Salta zucchine 4 min."],"note":"Le spezie fanno la differenza."},{"id":"eP05","slot":"cenPol","p":"RF","we":false,"e":"🧄","n":"Pollo aglio olio e peperoncino","min":15,"ing":[["Petto pollo","R:190g F:140g"],["Spinaci","200g+150g"],["Olio EVO","R:14ml F:13ml"],["Aglio","2"],["Peperoncino","pizzico"]],"steps":["Soffriggi aglio + peperoncino.","Aggiungi pollo 8 min.","Spinaci coperti 3 min."],"note":"Grande con poco."},{"id":"eP06","slot":"cenPol","p":"RF","we":true,"e":"🍋","n":"Scaloppine tacchino al limone","min":20,"ing":[["Fette tacchino","R:190g F:140g"],["Olio EVO","R:14ml F:13ml"],["Limone","2"],["Capperi","10g"],["Prezzemolo","mazzo"],["Verdure","200g+150g"]],"steps":["Batti le fette sottili.","Cuoci 3 min per lato.","Sfuma con limone + capperi + prezzemolo. Verdure lessate."],"note":"Elegante per il weekend."},{"id":"eP07","slot":"cenPol","p":"RF","we":false,"e":"🟡","n":"Pollo alla curcuma","min":15,"ing":[["Petto pollo","R:190g F:140g"],["Zucchine","200g+150g"],["Olio EVO","R:14ml F:13ml"],["Curcuma","1 cuc."],["Limone","½"]],"steps":["Condisci pollo con curcuma.","Cuoci 8 min per lato. Zucchine 4 min.","Limone sopra."],"note":"Curcuma + pepe: combo antiossidante."},{"id":"eP08","slot":"cenPol","p":"RF","we":true,"e":"🫕","n":"Pollo in umido con finocchi","min":35,"ing":[["Petto pollo","R:190g F:140g"],["Finocchi","300g"],["Olio EVO","R:14ml F:13ml"],["Vino bianco","50ml"],["Brodo","100ml"]],"steps":["Rosola pollo 5 min per lato.","Finocchi a spicchi + vino + brodo.","Copri 20 min fuoco basso."],"note":"Cottura lenta weekend."},{"id":"eS01","slot":"cenSal","p":"RF","we":false,"e":"🐟","n":"Salmone al limone e spinaci","min":15,"ing":[["Filetto salmone","R:210g F:160g"],["Spinaci","200g+150g"],["Limone","1"],["Olio EVO","5ml"]],"steps":["Padella antiaderente: salmone 4 min per lato.","Spinaci con olio 3 min.","Limone sopra."],"note":"Classico imbattibile."},{"id":"eS02","slot":"cenSal","p":"RF","we":false,"e":"🌿","n":"Salmone al vapore e finocchi","min":18,"ing":[["Filetto salmone","R:210g F:160g"],["Finocchi","200g+150g"],["Limone","1"],["Aneto","q.b."]],"steps":["Vapore 12 min con aneto e limone.","Finocchi crudi a fette o 4 min in padella."],"note":"Omega-3 preservati."},{"id":"eS03","slot":"cenSal","p":"RF","we":true,"e":"🏺","n":"Salmone in crosta di erbe","min":30,"ing":[["Filetto salmone","R:210g F:160g"],["Prezzemolo","mazzo"],["Aglio","1"],["Olio EVO","10ml"],["Farina avena","20g"],["Zucchine","200g+150g"]],"steps":["Frulla prezzemolo + aglio + olio + farina avena.","Spalma sul salmone. 200°C 18 min.","Zucchine grigliate."],"note":"Crosta di erbe spettacolare."},{"id":"eS04","slot":"cenSal","p":"RF","we":false,"e":"🫙","n":"Salmone marinato al miso","min":15,"ing":[["Filetto salmone","R:210g F:160g"],["Miso chiaro","10g"],["Salsa di soia","10ml"],["Miele","5g"],["Spinaci","200g+150g"]],"steps":["Marina 10 min in miso + soia + miele.","Padella calda 4 min per lato.","Spinaci saltati."],"note":"Miso caramella = sapore unico."},{"id":"eS05","slot":"cenSal","p":"RF","we":false,"e":"🥬","n":"Salmone e radicchio grigliato","min":18,"ing":[["Filetto salmone","R:210g F:160g"],["Radicchio","200g (Rob)"],["Zucchine","150g (Fra)"],["Olio EVO","5ml"],["Aceto balsamico","5ml"]],"steps":["Griglia salmone 4 min per lato.","Griglia radicchio / zucchine 3 min.","Balsamico sopra."],"note":"Radicchio grigliato perde l'amaro."},{"id":"eS06","slot":"cenSal","p":"RF","we":true,"e":"🎋","n":"Salmone teriyaki homemade","min":25,"ing":[["Filetto salmone","R:210g F:160g"],["Salsa di soia","20ml"],["Miele","10g"],["Zenzero","1 cm"],["Aglio","1"],["Spinaci","200g+150g"]],"steps":["Prepara salsa: soia + miele + zenzero + aglio.","Marina 15 min. Cuoci 4 min per lato spennellando.","Spinaci saltati."],"note":"Teriyaki senza additivi."},{"id":"eS07","slot":"cenSal","p":"RF","we":false,"e":"🌱","n":"Salmone e broccoli al limone","min":18,"ing":[["Filetto salmone","R:210g F:160g"],["Broccoli","200g (Rob)"],["Zucchine","150g (Fra)"],["Limone","1"],["Olio EVO","5ml"]],"steps":["Lessia broccoli 5 min. Cuoci salmone 4 min per lato.","Olio + limone su tutto."],"note":"Broccoli Rob, zucchine Fra."},{"id":"eS08","slot":"cenSal","p":"RF","we":true,"e":"🏮","n":"Salmone in cartoccio con finocchi","min":30,"ing":[["Filetto salmone","R:210g F:160g"],["Finocchi","200g+150g"],["Olio EVO","5ml"],["Limone","1"],["Aneto","q.b."]],"steps":["Ogni porzione su carta forno con finocchi + olio + limone + aneto.","Cartoccio chiuso. 200°C 20 min.","Apri a tavola."],"note":"Profumo incredibile al cartoccio."},{"id":"eC01","slot":"cenCar","p":"RF","we":false,"e":"🥩","n":"Bistecca e zucchine grigliate","min":15,"ing":[["Bistecca/vitello/manzo","R:180g F:120g"],["Zucchine","200g+150g"],["Olio EVO","R:10ml F:10ml"],["Rosmarino","q.b."],["Aglio","1"]],"steps":["Griglia bistecca 3 min per lato (media cottura).","Griglia zucchine a fette 3 min per lato.","Rosmarino e aglio strofinati sulla carne."],"note":"Semplice e soddisfacente."},{"id":"eC02","slot":"cenCar","p":"RF","we":false,"e":"🫙","n":"Vitello al limone e spinaci","min":18,"ing":[["Fettine vitello","R:180g F:120g"],["Spinaci","200g+150g"],["Olio EVO","R:10ml F:10ml"],["Limone","1"],["Capperi","10g"]],"steps":["Cuoci fettine di vitello in padella 3 min per lato.","Sfuma con limone + capperi.","Appassisci spinaci nello stesso fondo."],"note":"Vitello tenero e veloce."},{"id":"eC03","slot":"cenCar","p":"RF","we":true,"e":"🔥","n":"Manzo al rosmarino al forno","min":40,"ing":[["Taglio manzo (es. noce)","R:180g F:120g"],["Rosmarino","3 rametti"],["Aglio","4 spicchi"],["Olio EVO","R:10ml F:10ml"],["Radicchio","200g (Rob)"],["Zucchine","150g (Fra)"]],"steps":["Marina manzo con olio + rosmarino + aglio tritato 20 min.","Rosola 2 min per lato, poi in forno 180°C 20 min.","Verdure in padella nel frattempo."],"note":"Weekend: cottura in forno rilassata."},{"id":"eC04","slot":"cenCar","p":"RF","we":false,"e":"🌶️","n":"Straccetti di manzo e peperoncino","min":15,"ing":[["Manzo a straccetti","R:180g F:120g"],["Spinaci","200g+150g"],["Olio EVO","R:10ml F:10ml"],["Peperoncino","1"],["Aglio","1"],["Salsa di soia","10ml"]],"steps":["Salta aglio e peperoncino in olio.","Cuoci straccetti 5 min a fuoco alto.","Aggiungi spinaci + soia, 3 min."],"note":"Fuoco alto = carne non stopposa."},{"id":"eC05","slot":"cenCar","p":"RF","we":true,"e":"🍷","n":"Brasato leggero con finocchi","min":45,"ing":[["Manzo (fettine spesse)","R:180g F:120g"],["Finocchi","200g+150g"],["Olio EVO","R:10ml F:10ml"],["Vino rosso","80ml"],["Brodo","150ml"],["Aglio","2"]],"steps":["Rosola carne 3 min per lato.","Aggiungi finocchi + vino. Lascia evaporare.","Brodo, copri e cuoci 30 min a fuoco basso."],"note":"Weekend: il brasato è comfort food assoluto."},{"id":"eC06","slot":"cenCar","p":"RF","we":false,"e":"🧄","n":"Vitello aglio e broccoli","min":18,"ing":[["Fettine vitello","R:180g F:120g"],["Broccoli","200g (Rob)"],["Zucchine","150g (Fra)"],["Olio EVO","R:10ml F:10ml"],["Aglio","2"]],"steps":["Lessia broccoli 5 min (Rob) / salta zucchine 4 min (Fra).","Cuoci vitello con aglio e olio 3 min per lato."],"note":"Aglio aromatizza bene il vitello."},{"id":"eC07","slot":"cenCar","p":"RF","we":false,"e":"🌿","n":"Bistecca e radicchio balsamico","min":15,"ing":[["Bistecca","R:180g F:120g"],["Radicchio","200g (Rob)"],["Zucchine","150g (Fra)"],["Olio EVO","R:10ml F:10ml"],["Aceto balsamico","10ml"]],"steps":["Griglia bistecca 3 min per lato.","Griglia radicchio (Rob) / zucchine (Fra) 3 min.","Balsamico sulle verdure."],"note":"Radicchio e balsamico: abbinamento perfetto."},{"id":"eC08","slot":"cenCar","p":"RF","we":true,"e":"🫕","n":"Polpette al forno di vitello","min":35,"ing":[["Vitello macinato","R:180g F:120g"],["Parmigiano","R:20g F:10g"],["Aglio","1"],["Prezzemolo","mazzo"],["Zucchine","200g+150g"],["Olio EVO","5ml"]],"steps":["Mescola macinato + parmigiano + aglio + prezzemolo. Forma polpette.","Inforna 200°C 20 min.","Zucchine saltate come contorno."],"note":"Le polpette al forno non ungono."},{"id":"eT01","slot":"cenTofu","p":"RF","we":false,"e":"🌱","n":"Tofu saltato con spinaci e soia","min":15,"ing":[["Tofu naturale","R:200g F:150g"],["Spinaci","200g+150g"],["Salsa di soia","15ml"],["Olio EVO","R:10ml F:10ml"],["Aglio","1"],["Zenzero","½ cm"]],"steps":["Taglia tofu a cubetti, asciuga bene con carta.","Cuoci in padella calda con olio e aglio 8 min finché dorato.","Aggiungi spinaci + soia + zenzero, 3 min."],"note":"Asciugare il tofu è il segreto per farlo dorare."},{"id":"eT02","slot":"cenTofu","p":"RF","we":false,"e":"🫙","n":"Tofu marinato alla curcuma","min":15,"ing":[["Tofu naturale","R:200g F:150g"],["Curcuma","1 cuc."],["Olio EVO","R:10ml F:10ml"],["Pepe nero","q.b."],["Zucchine","200g+150g"],["Limone","½"]],"steps":["Marina tofu a cubetti con curcuma + olio + pepe 10 min.","Salta in padella 8 min.","Zucchine 4 min. Limone sopra."],"note":"Curcuma + pepe: combo anti-infiammatoria vegetale."},{"id":"eT03","slot":"cenTofu","p":"RF","we":true,"e":"🔥","n":"Tofu croccante teriyaki","min":25,"ing":[["Tofu naturale","R:200g F:150g"],["Salsa di soia","20ml"],["Miele","8g"],["Zenzero","1 cm"],["Aglio","1"],["Piselli","150g+100g"]],"steps":["Pressa e taglia tofu a cubi. Marina in soia + miele + zenzero 15 min.","Inforna 200°C 20 min girando a metà — viene croccante.","Scalda piselli, servi insieme."],"note":"Tofu al forno: croccante fuori, morbido dentro."},{"id":"eT04","slot":"cenTofu","p":"RF","we":false,"e":"🌿","n":"Tofu e finocchi al limone","min":18,"ing":[["Tofu naturale","R:200g F:150g"],["Finocchi","200g+150g"],["Olio EVO","R:10ml F:10ml"],["Limone","1"],["Prezzemolo","q.b."]],"steps":["Salta tofu a cubetti in olio 8 min.","Aggiungi finocchi a fette, 5 min.","Limone e prezzemolo."],"note":"Finocchi e tofu si abbinano bene."},{"id":"eT05","slot":"cenTofu","p":"RF","we":true,"e":"🎋","n":"Bowl tofu e verdure invernali","min":25,"ing":[["Tofu naturale","R:200g F:150g"],["Zucchine","150g+100g"],["Piselli","80g"],["Spinaci","100g"],["Olio EVO","R:10ml F:10ml"],["Salsa di soia","10ml"],["Sesamo","5g"]],"steps":["Tosta tofu in padella 8 min.","Salta tutte le verdure 5 min.","Assembla bowl con soia e sesamo."],"note":"Bowl colorata e proteica."},{"id":"eT06","slot":"cenTofu","p":"RF","we":false,"e":"🧄","n":"Tofu aglio olio e peperoncino","min":15,"ing":[["Tofu naturale","R:200g F:150g"],["Spinaci","200g+150g"],["Aglio","2"],["Olio EVO","R:10ml F:10ml"],["Peperoncino","pizzico"]],"steps":["Soffriggi aglio + peperoncino.","Aggiungi tofu a cubetti 8 min.","Spinaci coperti 3 min."],"note":"La classica pasta aglio olio... al tofu."},{"id":"eT07","slot":"cenTofu","p":"RF","we":false,"e":"🫛","n":"Tofu e piselli alla paprika","min":15,"ing":[["Tofu naturale","R:200g F:150g"],["Piselli","150g+100g"],["Olio EVO","R:10ml F:10ml"],["Paprika affumicata","1 cuc."],["Cipolla","½"]],"steps":["Salta cipolla 3 min.","Aggiungi tofu a cubetti + paprika, 7 min.","Piselli, scalda 3 min."],"note":"Paprika affumicata trasforma il tofu."},{"id":"eT08","slot":"cenTofu","p":"RF","we":true,"e":"🍱","n":"Tofu al forno con broccoli","min":30,"ing":[["Tofu naturale","R:200g F:150g"],["Broccoli","200g (Rob)"],["Zucchine","150g (Fra)"],["Olio EVO","R:10ml F:10ml"],["Salsa di soia","15ml"],["Miele","5g"]],"steps":["Taglia tofu, marina in soia + miele.","Teglia con verdure e tofu.","200°C 25 min girando a metà."],"note":"Tutto in una teglia — zero sporco."},{"id":"fPass01","slot":"cenFPass","p":"F","we":false,"e":"🫕","n":"Passato zucchine e piselli con uovo","min":15,"ing":[["Zucchine","200 g"],["Piselli surgelati","100 g"],["Brodo vegetale","200 ml"],["Uovo sodo","1"],["Parmigiano","20 g"],["Fette biscottate","10 g"]],"steps":["Cuoci zucchine + piselli in brodo 10 min.","Frulla con frullatore a immersione.","Servi con uovo sodo a pezzi + parmigiano + fette biscottate."],"note":"Leggero e sazia comunque grazie all'uovo."},{"id":"fPass02","slot":"cenFPass","p":"F","we":false,"e":"🟢","n":"Passato spinaci e finocchi con formaggio","min":15,"ing":[["Spinaci","150 g"],["Finocchi","100 g"],["Brodo vegetale","200 ml"],["Parmigiano grattugiato","30 g"],["Fette biscottate","10 g"]],"steps":["Cuoci spinaci + finocchi in brodo 10 min.","Frulla.","Servi con parmigiano abbondante e fette biscottate."],"note":"Il parmigiano è la proteina qui."},{"id":"fPass03","slot":"cenFPass","p":"F","we":true,"e":"🍵","n":"Vellutata di piselli con ricotta","min":20,"ing":[["Piselli surgelati","200 g"],["Finocchi","100 g"],["Brodo veg.","250 ml"],["Ricotta light","50 g"],["Olio EVO","5 ml"],["Fette biscottate","10 g"]],"steps":["Cuoci piselli + finocchi in brodo 12 min.","Frulla aggiungendo ricotta = velluto cremoso.","Filo d'olio + fette biscottate."],"note":"Ricotta rende la vellutata cremosa senza panna."},{"id":"fPass04","slot":"cenFPass","p":"F","we":false,"e":"🟡","n":"Passato finocchi con uovo in camicia","min":18,"ing":[["Finocchi","200 g"],["Brodo vegetale","200 ml"],["Uovo","1"],["Parmigiano","20 g"],["Fette biscottate","10 g"]],"steps":["Cuoci finocchi in brodo 12 min, frulla.","Porta acqua + aceto a fremito, cuoci uovo in camicia 3 min.","Uovo nel passato + parmigiano + fette biscottate."],"note":"Uovo in camicia sul passato: elegante e proteico."}];
+</script>
+<script>
+(function () {
+  'use strict';
+  var D = DATA, RBY = {};
+  RIC.forEach(function (r) { RBY[r.id] = r; });
+  var DOW = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+  var GYM = { 0: 'Giorno A', 2: 'Giorno B', 4: 'Giorno C' }; // lun, mer, ven (scheda palestra)
+  var GYM_URL = 'https://palestraarme.netlify.app/';
+  var VEG = { R: 'zucchine, spinaci, finocchi, piselli, broccoli, cavolfiore, radicchio, carciofi', F: 'zucchine, piselli, spinaci, finocchi' };
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var XICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  /* ---------- stato ---------- */
+  var KEY = 'dieta-pb-v3', S;
+  try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { S = {}; }
+  S.who = S.who || 'R'; S.eaten = S.eaten || {}; S.supp = S.supp || {}; S.shop = S.shop || {};
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function r1(n) { return Math.round(n * 10) / 10; }
+  var NOW = new Date(), TODAYI = (NOW.getDay() + 6) % 7;
+  function monday() { var d = new Date(NOW); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - TODAYI); return d; }
+  function dateOf(i) { var d = monday(); d.setDate(d.getDate() + i); return d; }
+  var sel = TODAYI, tab = 'oggi';
+
+  /* ---------- logica del piano ---------- */
+  function fruit(who, i) { return (who === 'R' ? D.FR : D.FF)[i]; }
+  function cloneM(m) { return JSON.parse(JSON.stringify(m)); }
+  function addEx(m, ex) { if (!ex) return m; m.extra = (m.extra || []).concat(ex.items); m.kcal += ex.kcal; m.p += ex.p; m.f += ex.f; m.c += ex.c; return m; }
+  function meals(who, i) {
+    var w = D.WEEK[i], out = [];
+    if (who === 'R') {
+      var col = cloneM(D.COL_R[w.colR]); col.key = 'col'; col.kind = 'col'; col.slot = w.colR === 'brioche' ? null : 'colR'; out.push(col);
+      var pr = cloneM((w.active && D.PRA_R_ACT[w.praRk]) || D.PRA_R[w.praRk]); pr.time = '12:30'; pr.key = 'pra'; pr.kind = 'pra'; pr.slot = w.praRk === 'prcL' ? 'praL' : null;
+      pr.label = pr.label.replace(/^Pranzo 12:30 — /, 'Pranzo — '); out.push(pr);
+      var me = cloneM(D.MER_R); me.key = 'mer'; me.kind = 'mer'; if (w.active) addEx(me, D.MER_R.exAct); delete me.exAct; out.push(me);
+      var ce = cloneM(D.CEN_R[w.cenR]); ce.key = 'cen'; ce.kind = 'cen'; ce.slot = w.cenR === 'cenLib' ? null : w.cenR; ce.cid = w.cenR; if (w.active) addEx(ce, D.CEN_R[w.cenR].exAct); delete ce.exAct; out.push(ce);
+    } else {
+      var c2 = cloneM(D.COL_F[w.colFk]); c2.key = 'col'; c2.kind = 'col'; c2.slot = 'colF'; out.push(c2);
+      var s2 = cloneM(D.SPU_F); s2.key = 'spu'; s2.kind = 'mer'; out.push(s2);
+      var p2 = cloneM(D.PRA_F[w.praFk]); p2.key = 'pra'; p2.kind = 'pra'; p2.slot = { pasta: 'praFPasta', pasta2: 'praFPasta', riso: 'praFRiso', legumi: 'praL' }[w.praFk] || null; out.push(p2);
+      var m2 = cloneM(D.MER_F); m2.key = 'mer'; m2.kind = 'mer'; out.push(m2);
+      var e2 = cloneM(D.CEN_F[w.cenF]); e2.key = 'cen'; e2.kind = 'cen'; e2.slot = w.cenF === 'cenPass' ? 'cenFPass' : w.cenF; e2.cid = w.cenF; out.push(e2);
+    }
+    if (who === 'R') { out = applyAdj(out, i); if (i >= 5) out.splice(1, 0, cloneM(SNACK_WE)); }
+    out.forEach(function (m) { m.items = m.items.map(function (it) { return fixItem(it, who, i, m.veg); }); });
+    if (who === 'R') scaleDay(out, target(who, i));
+    return out;
+  }
+  /* Revisione nov 2026: Mounjaro 10 mg + Triatec 5 mg, 96 kg -> 80 kg a fine maggio 2027.
+     Palestra (lun/mer/ven) ~2000 kcal, camminata ~1900, riposo ~1750-1800; proteine ~145-170 g. */
+  var YOG = { kcal: 81, p: 15.5, f: 0.3, c: 4.5 }, SNACK_GYM = { kcal: 248, p: 19.2, f: 1.8, c: 38 };
+  var ADJ = {
+    0: { colActive: true, gym: true, cen: [['+ Pasta o riso integrale', '30 g', 105, 4, 0.8, 20]] },
+    2: { colActive: true, gym: true, cen: [['+ Pasta o riso integrale', '30 g', 105, 4, 0.8, 20]] },
+    4: { colActive: true, gym: true, cen: [['+ Pasta o riso integrale', '30 g', 105, 4, 0.8, 20]] },
+    3: { mer: [['+ Yogurt greco 0%', '150 g', YOG.kcal, YOG.p, YOG.f, YOG.c]], cen: [['+ Riso integrale', '30 g', 108, 2.3, 0.8, 23]] },
+    5: { mer: [['+ Yogurt greco 0%', '150 g', YOG.kcal, YOG.p, YOG.f, YOG.c]], pra: [['+ Quinoa', '20 g', 74, 2.8, 1.2, 12.8]] },
+    6: { mer: [['+ Yogurt greco 0%', '150 g', YOG.kcal, YOG.p, YOG.f, YOG.c], ['+ Proteina soia GymBeam', '25 g', 95, 22, 0.8, 0.5]] }
+  };
+  function applyAdj(out, i) {
+    var a = ADJ[i]; if (!a) return out;
+    if (a.colActive) { var c = cloneM(D.COL_R.active); c.key = 'col'; c.kind = 'col'; c.slot = 'colR'; out[0] = c; }
+    ['pra', 'mer', 'cen'].forEach(function (k) {
+      (a[k] || []).forEach(function (x) { var m = out.filter(function (mm) { return mm.key === k; })[0]; if (!m) return;
+        m.plus = (m.plus || []).concat([[x[0], x[1]]]); m.kcal += x[2]; m.p += x[3]; m.f += x[4]; m.c += x[5]; });
+    });
+    if (a.gym) out.splice(3, 0, { key: 'gym', kind: 'gym', time: 'Palestra', label: 'Spuntino palestra', kcal: SNACK_GYM.kcal, p: SNACK_GYM.p, f: SNACK_GYM.f, c: SNACK_GYM.c,
+      items: [['Yogurt greco 0%', '150 g'], ['Fette biscottate integrali', '20 g'], ['Banana', '100 g']], hint: '1-2 ore prima o subito dopo l’allenamento' });
+    return out;
+  }
+  function fixItem(it, who, i, veg) {
+    var n = it[0], q = it[1], sub = '';
+    if (/Frutta ❄️/.test(n)) n = 'Frutta: ' + fruit(who, i);
+    if (/Verdura [‡§]/.test(n)) { n = 'Verdura' + (veg ? ': ' + veg : ''); sub = 'oppure ' + VEG[who]; }
+    if (/Mix cereali/.test(n)) sub = '60% Selex Multicereali al Miele + 40% Special K Granola Dark Chocolate';
+    n = n.replace(/\s*[★‡§]/g, '');
+    return [n, q, sub];
+  }
+  function totals(ms) { var t = { kcal: 0, p: 0, f: 0, c: 0 }; ms.forEach(function (m) { t.kcal += m.kcal; t.p += m.p; t.f += m.f; t.c += m.c; }); return t; }
+
+  /* ================= MOTORE ADATTIVO (solo Roberto) =================
+     1. Stima il consumo reale (TDEE): parte da 2700 kcal (Mifflin 1873 x ~1,45)
+        e lo corregge dal trend del peso: TDEE = kcal medie mangiate + (kg persi/giorno x 7700).
+     2. Ritmo necessario per arrivare a 80 kg a fine maggio 2027 (limitato 0,25-0,9 kg/sett.).
+     3. Budget settimanale = (TDEE - deficit) x 7. Sabato e domenica 3000 fissi, il resto
+        si divide sui feriali (palestra +80, camminata -120), mai sotto 1500 kcal. */
+  var GOAL = { from: 96, to: 80, start: '2026-11-09', end: '2027-05-31' };
+  var WE_KCAL = 3000, FLOOR = 1500, KCAL_KG = 7700;
+  function daysBetween(a, b) { return (new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5; }
+  function trend() {
+    S.w = S.w || {}; var ks = Object.keys(S.w).sort(); if (!ks.length) return null;
+    var lastK = ks[ks.length - 1], win = ks.filter(function (k) { return daysBetween(k, lastK) <= 28; });
+    if (win.length < 3 || daysBetween(win[0], lastK) < 13) return { cur: S.w[lastK], slope: null, last: lastK, n: ks.length };
+    var xs = win.map(function (k) { return daysBetween(win[0], k); }), ys = win.map(function (k) { return S.w[k]; });
+    var mx = xs.reduce(function (a, b) { return a + b; }, 0) / xs.length, my = ys.reduce(function (a, b) { return a + b; }, 0) / ys.length, num = 0, den = 0;
+    xs.forEach(function (x, j) { num += (x - mx) * (ys[j] - my); den += (x - mx) * (x - mx); });
+    var sl = den ? num / den : 0; // kg al giorno
+    return { cur: my + sl * (xs[xs.length - 1] - mx), slope: sl, from: win[0], last: lastK, n: ks.length };
+  }
+  function recalibrate() {
+    S.eng = S.eng || { tdee: 2700 }; var t = trend(); if (!t || t.slope === null || S.eng.upd === t.last) return;
+    var bud = S.bud || {}, vals = Object.keys(bud).filter(function (k) { return k >= t.from && k <= t.last; }).map(function (k) { return bud[k]; });
+    var intake = vals.length ? vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : planCore(S.eng.tdee).avg;
+    var obs = intake - t.slope * KCAL_KG; obs = Math.max(1800, Math.min(3800, obs));
+    S.eng.prev = S.eng.tdee; S.eng.tdee = Math.round(S.eng.tdee * 0.7 + obs * 0.3); S.eng.upd = t.last; S.eng.obs = Math.round(obs); save();
+  }
+  function planCore(tdee) {
+    var t = trend(), cur = t ? t.cur : GOAL.from, wl = Math.max(1, daysBetween(iso(NOW), GOAL.end) / 7);
+    var need = (cur - GOAL.to) / wl, rate = Math.max(0.25, Math.min(0.9, need));
+    if (cur <= GOAL.to) rate = 0;
+    var avg = tdee - rate * KCAL_KG / 7, week = avg * 7, wd = (week - 2 * WE_KCAL) / 5, warn = '';
+    if (wd < FLOOR) { wd = FLOOR; week = 5 * FLOOR + 2 * WE_KCAL; avg = week / 7; rate = Math.max(0, (tdee - avg) * 7 / KCAL_KG);
+      warn = 'Con 3000 kcal nel weekend i feriali dovrebbero scendere sotto ' + FLOOR + ' kcal: li tengo a ' + FLOOR + ' e il ritmo scende a ' + r1(rate) + ' kg/sett.'; }
+    var day = {}; for (var i = 0; i < 7; i++) day[i] = i >= 5 ? WE_KCAL : Math.round((wd + (GYM[i] ? 80 : -120)) / 10) * 10;
+    var eta = rate > 0 ? new Date(Date.now() + (cur - GOAL.to) / rate * 6048e5) : null;
+    return { tdee: tdee, cur: cur, need: need, rate: rate, avg: Math.round(avg), wd: Math.round(wd), day: day, warn: warn, eta: eta, wl: wl, t: t };
+  }
+  var PLAN = null;
+  function plan() { if (!PLAN) { recalibrate(); PLAN = planCore((S.eng || {}).tdee || 2700); S.bud = S.bud || {}; S.bud[iso(NOW)] = PLAN.avg; save(); } return PLAN; }
+
+  /* porzioni: proteine fisse, carboidrati e grassi scalati per centrare le kcal del giorno */
+  /* tabella per 100 g (kcal, P, C, G): solo alimenti che si scalano; proteine fisse */
+  var FOOD = [
+    [/frutta secca|noci|mandorle/i, 610, 18, 12, 54], [/olio/i, 900, 0, 0, 100], [/miele/i, 304, 0, 82, 0],
+    [/granola|cereali/i, 400, 8, 70, 9], [/fette/i, 410, 11, 72, 6], [/banana/i, 90, 1.1, 21, 0.3],
+    [/frutta|mela|pera|kiwi|mandarin|cachi|melagrana/i, 55, 0.5, 13, 0.2], [/riso|pasta|farro|orzo|quinoa|avena|farina/i, 355, 11, 70, 2.5]
+  ];
+  function foodOf(n) { if (/Yogurt|Proteina|Parmigiano|Mozzarella|Uov|Legumi/i.test(n)) return null; for (var j = 0; j < FOOD.length; j++) if (FOOD[j][0].test(n)) return FOOD[j]; return null; }
+  function scalables(out) { var L = []; out.forEach(function (m) { ['items', 'plus', 'extra'].forEach(function (f) { (m[f] || []).forEach(function (it) {
+    var fd = foodOf(it[0]), q = String(it[1]).match(/^(\d+(?:[.,]\d+)?)\s*(g|ml)$/); if (fd && q) L.push({ m: m, it: it, fd: fd, g: parseFloat(q[1].replace(',', '.')), u: q[2] }); }); }); }); return L; }
+  function scaleDay(out, kcal) {
+    var base = 0; out.forEach(function (m) { base += m.kcal; });
+    var L = scalables(out), sk = L.reduce(function (a, x) { return a + x.g * x.fd[1] / 100; }, 0), gap = kcal - base;
+    var free = out.filter(function (m) { return /liber[oa]/i.test(m.label); })[0];
+    if (free && gap > 0) { var fg = gap * 0.45, fr = fg / free.kcal; free.kcal += fg; free.c *= 1 + fr; free.f *= 1 + fr; free.p *= 1 + fr * 0.5; gap -= fg; }
+    var k = 1 + gap / Math.max(1, sk), kmax = free ? 1.7 : 2.4; k = Math.max(0.5, Math.min(kmax, k));
+    L.forEach(function (x) {
+      var ng = x.g * k; ng = ng >= 20 ? Math.round(ng / 5) * 5 : Math.max(1, Math.round(ng)); var d = (ng - x.g) / 100;
+      x.m.kcal += d * x.fd[1]; x.m.p += d * x.fd[2]; x.m.c += d * x.fd[3]; x.m.f += d * x.fd[4];
+      if (ng !== x.g) { x.it[1] = ng + ' ' + x.u; x.it.scaled = true; }
+    });
+    var now = 0; out.forEach(function (m) { now += m.kcal; });
+    if (free && Math.abs(kcal - now) > 20) { var r = (kcal - now) / free.kcal; free.kcal += kcal - now; free.c *= 1 + r; free.f *= 1 + r; free.p *= 1 + r * 0.5; }
+    if (free) free.hint = 'Pasto libero: punta a circa ' + Math.round(free.kcal / 10) * 10 + ' kcal, prima la parte proteica.';
+    return k;
+  }
+  var SNACK_WE = { key: 'swe', kind: 'mer', time: '11:00', label: 'Spuntino weekend', kcal: 470, p: 21, f: 16, c: 60,
+    items: [['Yogurt greco 0%', '150 g'], ['Granola o mix cereali', '40 g'], ['Frutta secca', '20 g'], ['Frutta di stagione', '150 g']], hint: 'Se l’appetito è poco, spezzalo in due momenti.' };
+  function target(who, i) { return who === 'R' ? plan().day[i] : 1450; }
+  function eatenOf(i) { var k = iso(dateOf(i)); return ((S.eaten[k] || {})[S.who]) || {}; }
+  function mins(t) { if (!/\d/.test(t || '')) t = '17:30'; var a = String(t || '0:0').split(':'); return (+a[0]) * 60 + (+a[1] || 0); }
+
+  /* quantità ricette per persona: "R:50g F:40g", "200g+150g", "(Rob)", "Fra:3ml" */
+  function qty(q, who) {
+    q = String(q || '');
+    var m = q.match(/R:\s*([^\s]+)\s*F:\s*([^\s]+)/);
+    if (m) { var v = who === 'R' ? m[1] : m[2]; return v === '0' ? null : v.replace(/(\d)(g|ml)$/, '$1 $2'); }
+    m = q.match(/^Fra:\s*(.+)$/); if (m) return who === 'F' ? m[1] : null;
+    if (/\(Rob\)/.test(q)) return who === 'R' ? q.replace(/\s*\(Rob\)/, '') : null;
+    if (/\(Fra\)/.test(q)) return who === 'F' ? q.replace(/\s*\(Fra\)/, '') : null;
+    m = q.match(/^(\d+\s?(?:g|ml))\+(\d+\s?(?:g|ml))$/); if (m) return (who === 'R' ? m[1] : m[2]).replace(/(\d)(g|ml)$/, '$1 $2');
+    return q;
+  }
+  function recipesFor(slot, who) { return RIC.filter(function (r) { return r.slot === slot && r.p.indexOf(who) >= 0; }); }
+
+  /* calendario 15 giorni */
+  function calIndex() {
+    if (!S.calStart) return -1;
+    var a = new Date(S.calStart + 'T12:00:00'), b = new Date(iso(NOW) + 'T12:00:00');
+    var n = Math.round((b - a) / 864e5); return n < 0 ? -1 : n % 15;
+  }
+  function calPickFor(meal, who, i) {
+    var ci = calIndex(); if (ci < 0) return null;
+    var idx = (ci + (i - TODAYI) + 150) % 15, c = D.CAL15[idx], id;
+    if (meal.kind === 'col') id = who === 'R' ? c.colR : c.colF;
+    else if (meal.kind === 'pra') id = who === 'R' ? c.praRid : c.praFid;
+    else if (meal.kind === 'cen') id = who === 'R' ? c.cenaRid : c.cenaFid;
+    var r = RBY[id]; return r && r.slot === meal.slot ? r : null;
+  }
+
+  /* ---------- render ---------- */
+  var $ = function (s) { return document.querySelector(s); };
+  function renderWeek() {
+    $('#week').innerHTML = DOW.map(function (d, i) {
+      var w = D.WEEK[i], ic = (S.who === 'R' && GYM[i] ? '🏋️' : '') + (w.active ? '🥾' : '') + (i === 5 && S.who === 'R' ? '🎉' : '');
+      return '<button type="button" class="dchip' + (i === TODAYI ? ' today' : '') + '" data-day="' + i + '" aria-pressed="' + (i === sel) + '" aria-label="' + w.day + '"><span class="dn">' + d + '</span><span class="dd">' + dateOf(i).getDate() + '</span><span class="di">' + ic + '</span></button>';
+    }).join('');
+    $('#week').hidden = !(tab === 'oggi');
+  }
+  function ring(pct) {
+    var r = 46, c = 2 * Math.PI * r, o = c * (1 - Math.min(1, pct));
+    return '<svg viewBox="0 0 112 112"><circle cx="56" cy="56" r="' + r + '" fill="none" stroke="var(--surface2)" stroke-width="11"/><circle cx="56" cy="56" r="' + r + '" fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + o.toFixed(1) + '" style="transition:stroke-dashoffset .5s ease"/></svg>';
+  }
+  function nextKey(ms, eaten) {
+    if (sel !== TODAYI) return null;
+    var now = NOW.getHours() * 60 + NOW.getMinutes(), open = ms.filter(function (m) { return !eaten[m.key]; });
+    if (!open.length) return null;
+    for (var j = 0; j < open.length; j++) { var nx = open[j + 1]; if (!nx || mins(nx.time) - 45 > now) return open[j].key; }
+    return open[open.length - 1].key;
+  }
+  var openKeys = {};
+  function renderOggi() {
+    var who = S.who, i = sel, w = D.WEEK[i], ms = meals(who, i), tot = totals(ms), eaten = eatenOf(i), tgt = target(who, i);
+    var got = totals(ms.filter(function (m) { return eaten[m.key]; }));
+    var nk = nextKey(ms, eaten);
+    if (nk && openKeys[i + who] === undefined) { openKeys[i + who] = {}; openKeys[i + who][nk] = true; }
+    var ok = openKeys[i + who] || {};
+    var h = '';
+    h += '<section class="hero" aria-label="Riepilogo del giorno"><div class="ring">' + ring(got.kcal / tgt) + '<div class="rv"><b>' + Math.round(got.kcal) + '</b><span>di ' + tgt + ' kcal</span></div></div><div class="macros">' +
+      macro('Proteine', got.p, tot.p, 'var(--p)') + macro('Carboidrati', got.c, tot.c, 'var(--c)') + macro('Grassi', got.f, tot.f, 'var(--f)') + '</div></section>';
+    var tags = [];
+    if (who === 'R' && GYM[i]) tags.push('<a class="tag gym" href="' + GYM_URL + '" target="_blank" rel="noopener">🏋️ Palestra · ' + GYM[i] + ' ›</a>');
+    if (w.active) tags.push('<span class="tag walk">🥾 Camminata · porzioni extra incluse</span>');
+    if (who === 'R' && i === 5) tags.push('<span class="tag free">🎉 Cena libera</span>');
+    if (i === 6) tags.push('<span class="tag free">' + (who === 'R' ? '🥐 Brioche a colazione · pranzo libero' : '🍝 Pranzo libero') + '</span>');
+    tags.push('<span class="tag">Piano: ≈' + Math.round(tot.kcal / 10) * 10 + ' kcal · P ' + Math.round(tot.p) + ' g</span>');
+    if (who === 'R') tags.push('<span class="tag">⚙️ Porzioni adattate al tuo peso</span>');
+    if (who === 'R' && i >= 5) tags.push('<span class="tag free">🍽️ Weekend 3000 kcal</span>');
+    h += '<div class="tags">' + tags.join('') + '</div>';
+    h += '<div class="sect"><h2>' + (i === TODAYI ? 'Pasti di oggi' : 'Pasti di ' + w.day.toLowerCase()) + '</h2><span>' + Object.keys(eaten).filter(function (k) { return eaten[k]; }).length + ' di ' + ms.length + ' fatti</span></div><div class="timeline">';
+    ms.forEach(function (m) {
+      var done = !!eaten[m.key], isOpen = !!ok[m.key], col = { col: 'var(--col)', pra: 'var(--pra)', mer: 'var(--mer)', cen: 'var(--cen)', gym: 'var(--accent)' }[m.kind];
+      var title = m.label.replace(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)\s*—\s*/, function (a, b) { return ''; }) || m.label;
+      var kind = m.label.match(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)/); kind = kind ? kind[1] : ''; if (m.key === 'gym') { kind = 'Palestra'; title = 'Spuntino palestra'; }
+      if (title === m.label && kind) title = kind;
+      var pick = calPickFor(m, who, i), rs = m.slot ? recipesFor(m.slot, who) : [];
+      h += '<article class="meal' + (done ? ' done' : '') + (isOpen ? ' open' : '') + (m.key === nk ? ' next' : '') + '" style="--mc:' + col + '" data-key="' + m.key + '">' +
+        '<div class="mh"><button type="button" class="mh-t" data-toggle="' + m.key + '" style="border:0;background:transparent;text-align:left;padding:0" aria-expanded="' + isOpen + '"><div class="mt">' + esc(m.time) + ' · ' + esc(kind) + (m.key === nk ? ' <span class="badge">' + (mins(m.time) <= NOW.getHours() * 60 + NOW.getMinutes() ? 'Ora' : 'Prossimo') + '</span>' : '') + '</div>' +
+        '<h3>' + esc(title.replace(/\s*\(\+camminata\)/, '')) + '</h3><div class="mk">' + Math.round(m.kcal) + ' kcal · P ' + r1(m.p) + ' g' + (pick ? ' · 💡 ' + esc(pick.n) : '') + '</div></button>' +
+        '<button type="button" class="eat" data-eat="' + m.key + '" aria-pressed="' + done + '" aria-label="Segna ' + esc(kind) + ' come mangiato">' + CHECK + '</button></div>' +
+        '<div class="mb">' + (m.hint ? '<p class="hint">⏱ ' + esc(m.hint) + '</p>' : '') + '<ul class="ing">' + m.items.map(function (it) { return '<li><span>' + esc(it[0]) + (it[2] ? '<small>' + esc(it[2]) + '</small>' : '') + '</span><span' + (it.scaled ? ' class="sc"' : '') + '>' + esc(it[1]) + '</span></li>'; }).join('') +
+        (m.plus || []).map(function (it) { return '<li class="plus"><span>' + esc(it[0].replace(/^\+\s*/, '+ ')) + '</span><span>' + esc(it[1]) + '</span></li>'; }).join('') +
+        (m.extra || []).map(function (it) { return '<li class="extra"><span>' + esc(it[0].replace(/^\+\s*/, '+ ')) + '</span><span>' + esc(it[1]) + '</span></li>'; }).join('') + '</ul>' +
+        '<div class="mmac"><span>P <b>' + r1(m.p) + '</b></span><span>C <b>' + r1(m.c) + '</b></span><span>G <b>' + r1(m.f) + '</b></span></div>' +
+        '<div class="mfoot">' + (pick ? '<button type="button" class="chipbtn hi" data-rec="' + pick.id + '">' + pick.e + ' Ricetta del giorno</button>' : '') +
+        (rs.length ? '<button type="button" class="chipbtn" data-ideas="' + m.slot + '">💡 Idee ricetta (' + rs.length + ')</button>' : '') +
+        '<button type="button" class="chipbtn" data-eat="' + m.key + '">' + (done ? 'Annulla' : '✓ Mangiato') + '</button></div></div></article>';
+    });
+    h += '</div>';
+    if (who === 'R') {
+      var sk = iso(dateOf(i)), sv = S.supp[sk] || {};
+      var SUPP = [['crea', 'Creatina', '3 g con un pasto'], ['omega', 'Omega 3', 'a pranzo o cena'], ['multi', 'Multivitaminico', 'con un pasto'], ['soia', 'Proteina di soia', i === 6 ? 'oggi no (brioche)' : '25 g a colazione']];
+      h += '<details class="rules"><summary>💉 Mounjaro e Triatec: 6 regole</summary><ul>' +
+        '<li><b>Proteine prima di tutto:</b> mangia prima la parte proteica del pasto; se l’appetito è poco, non saltare yogurt, carne, pesce, uova.</li>' +
+        '<li><b>Piccolo e lento:</b> fermati appena sei sazio; pasti molto grassi o fritti peggiorano nausea e reflusso.</li>' +
+        '<li><b>Acqua 2-2,5 L al giorno</b>, di più nei giorni di palestra.</li>' +
+        '<li><b>Niente sale “iposodico” al potassio</b> né integratori di potassio senza il medico (Triatec alza il potassio). Frutta e verdura normali vanno bene.</li>' +
+        '<li><b>Vomito o diarrea per più di 24 ore</b>, o non riesci a bere: chiama il medico. Disidratazione + Triatec può affaticare i reni.</li>' +
+        '<li><b>Creatina:</b> dillo al medico, alza la creatinina negli esami del sangue senza che i reni stiano male.</li></ul></details>';
+      h += '<div class="sect"><h2>Integrazione</h2><span>' + SUPP.filter(function (s) { return sv[s[0]]; }).length + ' di ' + SUPP.length + '</span></div><div class="supp">' +
+        SUPP.map(function (s) { return '<button type="button" class="sp" data-supp="' + s[0] + '" aria-pressed="' + !!sv[s[0]] + '"><b>' + s[1] + '</b><small>' + s[2] + '</small><span class="ck">' + CHECK + '</span></button>'; }).join('') + '</div>';
+    } else {
+      h += '<div class="note"><b>Cena:</b> passato di verdura + proteina (uovo o formaggio) 2 volte a settimana.</div>';
+    }
+    $('#main').innerHTML = h;
+  }
+  function macro(l, v, t, c) { return '<div class="mac"><span class="ml">' + l + '</span><div class="bar"><i style="width:' + (t ? Math.min(100, v / t * 100) : 0) + '%;background:' + c + '"></i></div><span class="mv">' + Math.round(v) + '/' + Math.round(t) + ' g</span></div>'; }
+
+  function weightHTML() {
+    var P = plan(), t = P.t, ks = Object.keys(S.w || {}).sort(), done = GOAL.from - P.cur, pct = Math.max(0, Math.min(1, done / (GOAL.from - GOAL.to)));
+    var eng = S.eng || { tdee: 2700 }, calib = eng.upd ? 'ricalcolato dal tuo peso il ' + new Date(eng.upd).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + (eng.prev ? ' (era ' + eng.prev + ')' : '') : 'stima iniziale: si corregge da sola dopo 2 settimane di pesate';
+    var real = t && t.slope !== null ? r1(-t.slope * 7) + ' kg/sett.' : 'servono 2 settimane di dati';
+    var row = function (l, v) { return '<div class="kv"><span>' + l + '</span><b>' + v + '</b></div>'; };
+    return '<section class="goal"><div class="gh"><div><small>Obiettivo</small><b>' + GOAL.to + ' kg</b><span>entro fine maggio 2027</span></div><div style="text-align:right"><small>Peso di tendenza</small><b>' + r1(P.cur) + ' kg</b><span>' + (ks.length ? ks.length + ' pesate' : 'partenza') + '</span></div></div>' +
+      '<div class="bar" style="height:10px;margin:12px 0 8px"><i style="width:' + (pct * 100) + '%;background:var(--ok)"></i></div>' +
+      '<p class="gl">−' + r1(done) + ' kg fatti · mancano ' + r1(Math.max(0, P.cur - GOAL.to)) + ' kg in ' + Math.round(P.wl) + ' settimane</p>' +
+      '<div class="kvs">' + row('Consumo stimato', eng.tdee + ' kcal/giorno') + row('Ritmo richiesto', r1(P.need) + ' kg/sett.') + row('Ritmo reale', real) + row('Media giornaliera', P.avg + ' kcal') +
+      row('Feriali', P.wd + ' kcal (palestra +80)') + row('Sabato e domenica', WE_KCAL + ' kcal') + (P.eta ? row('Arrivo previsto', P.eta.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })) : '') + '</div>' +
+      (P.warn ? '<p class="gl warn">⚠️ ' + esc(P.warn) + '</p>' : '') +
+      '<p class="gl">⚙️ ' + calib + '. Pesati la mattina a digiuno, anche tutti i giorni: conta la tendenza, non il singolo dato. Dopo il weekend da 3000 il lunedì sarai più pesante per acqua e carboidrati: è normale.</p>' +
+      '<form class="wf" id="wform"><input id="wkg" type="text" inputmode="decimal" placeholder="Peso di oggi (kg)" aria-label="Peso di oggi in kg"><button class="chipbtn hi" type="submit">Salva</button></form>' +
+      (ks.length ? '<details class="wh"><summary>Storico pesate</summary>' + ks.slice().reverse().map(function (k) { return '<div class="kv"><span>' + new Date(k).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }) + '</span><b>' + r1(S.w[k]) + ' kg <button type="button" class="del" data-delw="' + k + '" aria-label="Elimina">×</button></b></div>'; }).join('') + '</details>' : '') + '</section>';
+  }
+  function renderSettimana() {
+    var who = S.who, h = (who === 'R' ? weightHTML() : '') + '<div class="sect" style="margin-top:' + (who === 'R' ? 22 : 8) + 'px"><h2>La settimana</h2><span>tocca un giorno</span></div><div class="wk">';
+    D.WEEK.forEach(function (w, i) {
+      var ms = meals(who, i), t = totals(ms), ek = eatenOf(i), nd = ms.filter(function (m) { return ek[m.key]; }).length;
+      var short = function (m) { var x = m.label.replace(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)\s*—\s*/, '').replace(/\s*\(\+camminata\)/, ''); return /^(Colazione|Merenda|Spuntino)( Tipo [AB])?$/.test(x) ? (m.items[0] ? m.items[0][0] : x) : x; };
+      var by = {}; ms.forEach(function (m) { by[m.kind] = m; });
+      h += '<button type="button" class="wd' + (i === TODAYI ? ' today' : '') + '" data-goday="' + i + '"><div class="wh"><h3>' + (i === TODAYI ? 'Oggi · ' : '') + w.day + '</h3><span class="wk2">' + Math.round(t.kcal) + ' kcal · P ' + Math.round(t.p) + ' g' + (nd ? ' · ✓ ' + nd + '/' + ms.length : '') + '</span></div>' +
+        '<div class="wm">' + [['Colaz.', by.col], ['Pranzo', by.pra], ['Merenda', by.mer], ['Cena', by.cen]].map(function (x) { return '<span><b>' + x[0] + '</b>' + esc(x[1] ? short(x[1]) : '—') + '</span>'; }).join('') + '</div>' +
+        '<div class="tags">' + (who === 'R' && GYM[i] ? '<span class="tag gym">🏋️ ' + GYM[i] + '</span>' : '') + (w.active ? '<span class="tag walk">🥾 Camminata</span>' : '') + '</div></button>';
+    });
+    $('#main').innerHTML = h + '</div>';
+  }
+
+  var shopHide = false;
+  function renderSpesa() {
+    var all = 0, got = 0;
+    D.SHOP.forEach(function (c) { c.items.forEach(function (it) { all++; if (S.shop[it[0]]) got++; }); });
+    var h = '<div class="sect" style="margin-top:8px"><h2>Lista della spesa</h2><span>per 1 settimana, tutti e due</span></div>' +
+      '<div class="prog"><b>' + got + '/' + all + '</b><div class="bar"><i style="width:' + (got / all * 100) + '%;background:var(--ok)"></i></div><span style="font-size:13px;color:var(--muted)">' + (got === all ? 'Fatto! 🎉' : 'nel carrello') + '</span></div>' +
+      '<div class="tools"><button type="button" class="chipbtn' + (shopHide ? ' hi' : '') + '" id="shopHide">' + (shopHide ? 'Mostra tutto' : 'Nascondi presi') + '</button><button type="button" class="chipbtn" id="shopReset">Nuova spesa</button></div>';
+    D.SHOP.forEach(function (c) {
+      var n = c.items.filter(function (it) { return S.shop[it[0]]; }).length, items = c.items.filter(function (it) { return !(shopHide && S.shop[it[0]]); });
+      if (!items.length && shopHide) return;
+      h += '<section class="cat"><h3>' + esc(c.cat) + '<small>' + n + '/' + c.items.length + '</small></h3>' + items.map(function (it) {
+        return '<button type="button" class="it" data-shop="' + esc(it[0]) + '" aria-pressed="' + !!S.shop[it[0]] + '"><span class="ck">' + CHECK + '</span><span class="nm">' + esc(it[0]) + '</span><span class="q">' + esc(it[1]) + '</span></button>';
+      }).join('') + '</section>';
+    });
+    $('#main').innerHTML = h;
+  }
+
+  var rq = '', rf = 'all', rwe = false;
+  var RF = [['all', 'Tutte'], ['col', 'Colazione'], ['pra', 'Pranzo'], ['cen', 'Cena'], ['cenPol', '🍗 Pollo'], ['cenSal', '🐟 Salmone'], ['cenCar', '🥩 Carne'], ['cenTofu', '🌱 Tofu'], ['cenFPass', '🫕 Passati']];
+  function slotGroup(s) { return /^col/.test(s) ? 'col' : /^pra/.test(s) ? 'pra' : 'cen'; }
+  function renderRicette(keepFocus) {
+    var who = S.who, q = rq.trim().toLowerCase();
+    var list = RIC.filter(function (r) {
+      if (r.p.indexOf(who) < 0) return false;
+      if (rf !== 'all' && r.slot !== rf && slotGroup(r.slot) !== rf) return false;
+      if (rwe && !r.we) return false;
+      if (q && (r.n + ' ' + r.ing.map(function (x) { return x[0]; }).join(' ')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    if (!keepFocus) {
+      $('#main').innerHTML = '<div class="sect" style="margin-top:8px"><h2>Ricette</h2><span id="rcount"></span></div><input class="search" id="rq" type="search" placeholder="Cerca: ceci, salmone, avena…" value="' + esc(rq) + '" autocomplete="off">' +
+        '<div class="filters" id="rfil">' + RF.filter(function (f) { return f[0] !== 'cenFPass' || who === 'F'; }).filter(function (f) { return f[0] !== 'cenTofu' || who === 'R' || true; }).map(function (f) { return '<button type="button" class="fchip" data-rf="' + f[0] + '" aria-pressed="' + (rf === f[0]) + '">' + f[1] + '</button>'; }).join('') +
+        '<button type="button" class="fchip" id="rwe" aria-pressed="' + rwe + '">✨ Weekend</button></div><div class="rgrid" id="rgrid"></div>';
+    }
+    $('#rcount').textContent = list.length + ' per ' + (who === 'R' ? 'Roberto' : 'Francesca');
+    $('#rgrid').innerHTML = list.length ? list.map(function (r) { return '<button type="button" class="rc" data-rec="' + r.id + '"><span class="re">' + r.e + '</span><b>' + esc(r.n) + '</b><small>⏱ ' + r.min + ' min' + (r.we ? ' · weekend' : '') + '</small></button>'; }).join('') : '<p class="empty" style="grid-column:1/-1">Nessuna ricetta con questi filtri.</p>';
+  }
+
+  function renderCal() {
+    var who = S.who, ci = calIndex();
+    var h = '<div class="sect" style="margin-top:8px"><h2>Calendario 15 giorni</h2><span>ricette a rotazione</span></div>';
+    if (ci < 0) {
+      h += '<div class="note" style="margin-top:0"><b>Come funziona:</b> 15 giorni di ricette diverse per colazione, pranzo e cena, sempre dentro le quantità del piano. Avvialo e ogni pasto in “Oggi” ti propone la ricetta del giorno.</div>' +
+        '<div class="tools"><button type="button" class="chipbtn hi" id="calStart">Inizia da lunedì</button><button type="button" class="chipbtn" id="calToday">Inizia da oggi</button></div>';
+    } else {
+      h += '<div class="tools" style="margin:0 0 12px"><span class="tag">Sei al giorno ' + (ci + 1) + ' di 15</span><button type="button" class="chipbtn" id="calStop">Ricomincia</button></div>';
+    }
+    D.CAL15.forEach(function (c, j) {
+      var cls = ci < 0 ? '' : j === ci ? ' now' : j < ci ? ' past' : '';
+      var rows = [['Colazione', who === 'R' ? c.colR : c.colF], ['Pranzo', who === 'R' ? c.praRid : c.praFid], ['Cena', who === 'R' ? c.cenaRid : c.cenaFid]];
+      h += '<article class="cday' + cls + '"' + (j === ci ? ' id="calNow"' : '') + '><h3>' + (j === ci ? 'Oggi · ' : '') + 'Giorno ' + c.g + ' <small>' + c.nome + (c.isWE ? ' · weekend' : '') + '</small></h3><div class="crow">' +
+        rows.map(function (x) { var r = RBY[x[1]]; return r ? '<button type="button" data-rec="' + r.id + '"><em>' + x[0] + '</em>' + r.e + ' ' + esc(r.n) + '</button>' : ''; }).join('') + '</div></article>';
+    });
+    $('#main').innerHTML = h;
+    var n = document.getElementById('calNow'); if (n) n.scrollIntoView({ block: 'center' });
+  }
+
+  function render() {
+    document.querySelectorAll('.nb').forEach(function (b) { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    document.querySelectorAll('.who button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.who === S.who)); });
+    $('#htitle').textContent = { oggi: sel === TODAYI ? 'Oggi' : D.WEEK[sel].day, settimana: 'Settimana', spesa: 'Spesa', ricette: 'Ricette', cal: '15 giorni' }[tab];
+    renderWeek();
+    ({ oggi: renderOggi, settimana: renderSettimana, spesa: renderSpesa, ricette: renderRicette, cal: renderCal })[tab]();
+  }
+
+  /* ---------- foglio ricetta / idee ---------- */
+  var lastFocus = null;
+  function openSheet(html) { lastFocus = document.activeElement; $('#sheetBody').innerHTML = html; $('#sheet').classList.add('on'); $('#scrim').classList.add('on'); $('#sheet').scrollTop = 0; var x = $('#sheet .x'); if (x) x.focus(); }
+  function closeSheet() { $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); if (lastFocus) try { lastFocus.focus(); } catch (e) {} }
+  function recipeHTML(id) {
+    var r = RBY[id], who = S.who; if (!r) return '';
+    var ing = r.ing.map(function (x) { var q = qty(x[1], who); return q === null ? '' : '<li><span>' + esc(x[0].replace(/\s*★/, '')) + '</span><span>' + esc(q) + '</span></li>'; }).join('');
+    return '<div class="sh"><div><div style="font-size:40px;line-height:1">' + r.e + '</div><h2 id="shTitle" style="margin-top:6px">' + esc(r.n) + '</h2></div><button type="button" class="x" data-close aria-label="Chiudi">' + XICON + '</button></div>' +
+      '<div class="meta"><span class="tag">⏱ ' + r.min + ' min</span>' + (r.we ? '<span class="tag free">✨ Weekend</span>' : '') + (r.p === 'RF' ? '<span class="tag">👫 Per tutti e due</span>' : '') + '<span class="tag">Dosi per ' + (who === 'R' ? 'Roberto' : 'Francesca') + '</span></div>' +
+      '<h4>Ingredienti</h4><ul class="ing">' + ing + '</ul><h4>Preparazione</h4><ol class="steps">' + r.steps.map(function (s) { return '<li><span>' + esc(s) + '</span></li>'; }).join('') + '</ol>' +
+      (r.note ? '<div class="note">💡 ' + esc(r.note) + '</div>' : '');
+  }
+  function ideasHTML(slot) {
+    var rs = recipesFor(slot, S.who), we = sel >= 5;
+    rs.sort(function (a, b) { return (b.we === we) - (a.we === we) || a.min - b.min; });
+    return '<div class="sh"><h2 id="shTitle">Idee ricetta</h2><button type="button" class="x" data-close aria-label="Chiudi">' + XICON + '</button></div>' +
+      '<p style="color:var(--muted);font-size:14px;margin:6px 0 0">Stesse quantità del piano. ' + (we ? 'In alto le ricette da weekend.' : 'In alto le più veloci.') + '</p><div class="rlist">' +
+      rs.map(function (r) { return '<button type="button" class="rli" data-rec="' + r.id + '"><span class="re">' + r.e + '</span><span><b>' + esc(r.n) + '</b><small>⏱ ' + r.min + ' min' + (r.we ? ' · weekend' : '') + '</small></span><span aria-hidden="true">›</span></button>'; }).join('') + '</div>';
+  }
+
+  /* ---------- eventi ---------- */
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('button, [data-close]'); if (!t) { if (ev.target.id === 'scrim') closeSheet(); return; }
+    var ds = t.dataset;
+    if (ds.close !== undefined) return closeSheet();
+    if (ds.who) { S.who = ds.who; save(); rf = 'all'; return render(); }
+    if (ds.tab) { tab = ds.tab; if (tab !== 'oggi') sel = TODAYI; window.scrollTo(0, 0); return render(); }
+    if (ds.day) { sel = +ds.day; return render(); }
+    if (ds.goday) { sel = +ds.goday; tab = 'oggi'; window.scrollTo(0, 0); return render(); }
+    if (ds.toggle) { var k = sel + S.who; openKeys[k] = openKeys[k] || {}; openKeys[k][ds.toggle] = !openKeys[k][ds.toggle]; return renderOggi(); }
+    if (ds.eat) {
+      var dk = iso(dateOf(sel)); S.eaten[dk] = S.eaten[dk] || {}; S.eaten[dk][S.who] = S.eaten[dk][S.who] || {};
+      var e = S.eaten[dk][S.who]; e[ds.eat] = !e[ds.eat];
+      if (e[ds.eat]) { var ok2 = openKeys[sel + S.who] = {}; var ms = meals(S.who, sel), nk = nextKey(ms, e); if (nk) ok2[nk] = true; try { navigator.vibrate && navigator.vibrate(15); } catch (x) {} }
+      save(); return renderOggi();
+    }
+    if (ds.delw) { delete S.w[ds.delw]; if (S.eng && S.eng.upd === ds.delw) { S.eng.tdee = S.eng.prev || S.eng.tdee; delete S.eng.upd; } save(); PLAN = null; return renderSettimana(); }
+    if (ds.supp) { var sk = iso(dateOf(sel)); S.supp[sk] = S.supp[sk] || {}; S.supp[sk][ds.supp] = !S.supp[sk][ds.supp]; save(); return renderOggi(); }
+    if (ds.shop) { S.shop[ds.shop] = !S.shop[ds.shop]; save(); return renderSpesa(); }
+    if (t.id === 'shopHide') { shopHide = !shopHide; return renderSpesa(); }
+    if (t.id === 'shopReset') { if (confirm('Svuotare le spunte della spesa?')) { S.shop = {}; save(); renderSpesa(); } return; }
+    if (ds.rf) { rf = ds.rf; return renderRicette(); }
+    if (t.id === 'rwe') { rwe = !rwe; return renderRicette(); }
+    if (ds.rec) return openSheet(recipeHTML(ds.rec));
+    if (ds.ideas) return openSheet(ideasHTML(ds.ideas));
+    if (t.id === 'calStart') { S.calStart = iso(monday()); save(); return renderCal(); }
+    if (t.id === 'calToday') { S.calStart = iso(NOW); save(); return renderCal(); }
+    if (t.id === 'calStop') { delete S.calStart; save(); return renderCal(); }
+  });
+  $('#scrim').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+  document.addEventListener('submit', function (e) {
+    if (e.target.id !== 'wform') return; e.preventDefault();
+    var v = parseFloat(String($('#wkg').value).replace(',', '.')); if (!(v > 40 && v < 250)) { $('#wkg').focus(); return; }
+    S.w = S.w || {}; S.w[iso(NOW)] = v; save(); PLAN = null; renderSettimana();
+  });
+  document.addEventListener('input', function (e) { if (e.target.id === 'rq') { rq = e.target.value; renderRicette(true); } });
+  window.addEventListener('scroll', function () { $('#top').classList.toggle('sc', window.scrollY > 4); }, { passive: true });
+  /* swipe tra i giorni */
+  var sx = null, sy = null;
+  $('#main').addEventListener('touchstart', function (e) { if (tab !== 'oggi') return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  $('#main').addEventListener('touchend', function (e) {
+    if (sx === null) return; var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) { sel = (sel + (dx < 0 ? 1 : 6)) % 7; render(); }
+  }, { passive: true });
+  render();
+})();
+</script>
+</body>
+</html>
