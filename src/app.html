@@ -434,7 +434,7 @@ var RIC = /*RIC*/;
     var t = x.fd[5];
     if (t === 'carb') return Math.max(Math.max(CARB_MIN, x.g0), Math.round(g / 5) * 5);
     if (t === 'prot') return Math.round(g / 10) * 10;
-    if (/olio/i.test(x.it[0])) return Math.max(3, Math.round(g));
+    if (/olio/i.test(x.it[0])) return Math.max(3, Math.min(15, Math.round(g)));
     return g >= 20 ? Math.round(g / 5) * 5 : Math.max(1, Math.round(g));
   }
   /* sposta "gap" kcal sul gruppo, entro i limiti; ritorna le kcal effettivamente spostate */
