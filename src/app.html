@@ -287,7 +287,7 @@ var RIC = /*RIC*/;
       var col = cloneM(D.COL_R[w.colR]); col.key = 'col'; col.kind = 'col'; col.slot = null; out.push(col);
       var pr = cloneM((w.active && D.PRA_R_ACT[w.praRk]) || D.PRA_R[w.praRk]); pr.time = '12:30'; pr.key = 'pra'; pr.kind = 'pra'; pr.slot = w.praRk === 'prcL' ? 'praL' : null;
       pr.label = pr.label.replace(/^Pranzo 12:30 — /, 'Pranzo — '); out.push(pr);
-      var me = cloneM(D.MER_R); me.key = 'mer'; me.kind = 'mer'; if (w.active) addEx(me, D.MER_R.exAct); delete me.exAct; out.push(me);
+      var me = cloneM(w.lowc ? D.MER_R_LC : D.MER_R); me.key = 'mer'; me.kind = 'mer'; if (w.lowc) me.fixed = true; if (w.active) addEx(me, D.MER_R.exAct); delete me.exAct; out.push(me);
       var ce = cloneM(D.CEN_R[w.cenR]); ce.key = 'cen'; ce.kind = 'cen'; ce.slot = w.cenR === 'cenLib' ? null : w.cenR; ce.cid = w.cenR; if (w.active) addEx(ce, D.CEN_R[w.cenR].exAct); delete ce.exAct; out.push(ce);
     } else {
       var c2 = cloneM(D.COL_F[w.colFk]); c2.key = 'col'; c2.kind = 'col'; c2.slot = 'colF'; out.push(c2);
@@ -296,7 +296,7 @@ var RIC = /*RIC*/;
       var m2 = cloneM(D.MER_F); m2.key = 'mer'; m2.kind = 'mer'; out.push(m2);
       var e2 = cloneM(D.CEN_F[w.cenF]); e2.key = 'cen'; e2.kind = 'cen'; e2.slot = w.cenF === 'cenPass' ? 'cenFPass' : w.cenF === 'cenLib' ? null : w.cenF; if (w.cenF === 'cenLib') e2.hint = 'Pasto libero: punta a circa 520 kcal, prima la parte proteica.'; e2.cid = w.cenF; out.push(e2);
     }
-    out.forEach(function (m) { if (m.key !== 'gym') applyVar(m, who); });
+    out.forEach(function (m) { if (m.key !== 'gym' && !m.fixed) applyVar(m, who); });
     if (who === 'R') { out = applyAdj(out, i); out.forEach(function (m) { if (m.key === 'gym') applyVar(m, who); }); }
     out.forEach(function (m) { m.items = m.items.map(function (it) { return fixItem(it, who, i, m.veg); }); });
     if (who === 'R') scaleDay(out, target(who, i));
@@ -333,7 +333,7 @@ var RIC = /*RIC*/;
     0: { colActive: true, gym: true },
     2: { colActive: true, gym: true },
     4: { colActive: true, gym: true },
-    5: { col: WE_COL, mer: [['+ Proteina soia GymBeam', '20 g', 76, 17.6, 0.6, 0.4]], pra: [['+ Quinoa', '20 g', 74, 2.8, 1.2, 12.8]] },
+    5: { col: WE_COL, mer: [['+ Proteina soia GymBeam', '20 g', 76, 17.6, 0.6, 0.4]] },
     6: { col: WE_COL, mer: [['+ Proteina soia GymBeam', '30 g', 114, 26.4, 0.9, 0.6]] }
   };
   function applyAdj(out, i) {
@@ -412,32 +412,54 @@ var RIC = /*RIC*/;
     return PLAN;
   }
 
-  /* porzioni: proteine fisse, carboidrati e grassi scalati per centrare le kcal del giorno */
-  /* tabella per 100 g (kcal, P, C, G): solo alimenti che si scalano; proteine fisse */
+  /* porzioni (solo Roberto): i carboidrati non scendono mai sotto 50 g a piatto;
+     per centrare le kcal del giorno si regolano prima grassi e proteine.
+     tabella per 100 g crudi: kcal, P, C, G */
   var FOOD = [
-    [/frutta secca|noci|mandorle/i, 610, 18, 12, 54], [/olio/i, 900, 0, 0, 100], [/miele/i, 304, 0, 82, 0],
-    [/granola|cereali/i, 400, 8, 70, 9], [/fette/i, 410, 11, 72, 6], [/banana/i, 90, 1.1, 21, 0.3],
-    [/castagne/i, 193, 3.2, 42, 2], [/pane/i, 250, 8.5, 47, 1.5],
-    [/frutta|mela|pera|kiwi|mandarin|cachi|melagrana/i, 55, 0.5, 13, 0.2], [/riso|pasta|farro|orzo|quinoa|avena|farina/i, 355, 11, 70, 2.5]
+    [/frutta secca|noci|mandorle/i, 610, 18, 12, 54, 'fat'], [/olio/i, 900, 0, 0, 100, 'fat'], [/miele/i, 304, 0, 82, 0, 'side'],
+    [/granola|cereali/i, 400, 8, 70, 9, 'side'], [/fette/i, 410, 11, 72, 6, 'side'], [/banana/i, 90, 1.1, 21, 0.3, 'side'],
+    [/castagne/i, 193, 3.2, 42, 2, 'side'], [/pane/i, 250, 8.5, 47, 1.5, 'side'],
+    [/frutta|mela|pera|kiwi|mandarin|cachi|melagrana/i, 55, 0.5, 13, 0.2, 'side'],
+    [/avena|farina/i, 370, 13, 60, 7, 'side'],
+    [/riso|pasta|farro|orzo|quinoa|cous/i, 355, 11, 70, 2.5, 'carb'],
+    [/pollo|tacchino/i, 110, 23, 0, 1.5, 'prot'], [/salmone/i, 185, 20, 0, 12, 'prot'], [/tonno/i, 103, 23, 0, 1, 'prot'],
+    [/bistecca|vitello|manzo/i, 130, 22, 0, 4.5, 'prot'], [/merluzzo|orata|branzino/i, 85, 18, 0, 1, 'prot']
   ];
+  /* limiti per gruppo: [min, max] rispetto alla porzione base */
+  var RANGE = { fat: [0.5, 1.8], prot: [0.85, 1.2], side: [0.7, 1.8], carb: [1, 1.6] }, CARB_MIN = 50;
   function foodOf(n) { if (/Yogurt|Proteina|Parmigiano|Mozzarella|Uov|Legumi|Ricotta|Latte|Cacao|Tè|tisana/i.test(n)) return null; for (var j = 0; j < FOOD.length; j++) if (FOOD[j][0].test(n)) return FOOD[j]; return null; }
   function scalables(out) { var L = []; out.forEach(function (m) { (m.key === 'col' ? ['plus'] : ['items', 'plus', 'extra']).forEach(function (f) { (m[f] || []).forEach(function (it) {
-    var fd = foodOf(it[0]), q = String(it[1]).match(/^(\d+(?:[.,]\d+)?)\s*(g|ml)$/); if (fd && q) L.push({ m: m, it: it, fd: fd, g: parseFloat(q[1].replace(',', '.')), u: q[2] }); }); }); }); return L; }
+    var fd = foodOf(it[0]), q = String(it[1]).match(/^(\d+(?:[.,]\d+)?)\s*(g|ml)$/); if (fd && q) L.push({ m: m, it: it, fd: fd, g0: parseFloat(q[1].replace(',', '.')), g: parseFloat(q[1].replace(',', '.')), u: q[2] }); }); }); }); return L; }
+  function roundG(x, g) {
+    var t = x.fd[5];
+    if (t === 'carb') return Math.max(Math.max(CARB_MIN, x.g0), Math.round(g / 5) * 5);
+    if (t === 'prot') return Math.round(g / 10) * 10;
+    if (/olio/i.test(x.it[0])) return Math.max(3, Math.round(g));
+    return g >= 20 ? Math.round(g / 5) * 5 : Math.max(1, Math.round(g));
+  }
+  /* sposta "gap" kcal sul gruppo, entro i limiti; ritorna le kcal effettivamente spostate */
+  function shift(L, type, gap) {
+    var G = L.filter(function (x) { return x.fd[5] === type; }); if (!G.length || Math.abs(gap) < 5) return 0;
+    var kc = G.reduce(function (a, x) { return a + x.g0 * x.fd[1] / 100; }, 0), now = G.reduce(function (a, x) { return a + x.g * x.fd[1] / 100; }, 0);
+    var k = Math.max(RANGE[type][0], Math.min(RANGE[type][1], (now + gap) / kc)), moved = 0;
+    G.forEach(function (x) { var ng = roundG(x, x.g0 * k), d = (ng - x.g) / 100; moved += d * x.fd[1]; x.g = ng; });
+    return moved;
+  }
   function scaleDay(out, kcal) {
     var base = 0; out.forEach(function (m) { base += m.kcal; });
-    var L = scalables(out), sk = L.reduce(function (a, x) { return a + x.g * x.fd[1] / 100; }, 0), gap = kcal - base;
+    var L = scalables(out), gap = kcal - base;
     var free = out.filter(function (m) { return /liber[oa]/i.test(m.label); })[0];
     if (free && gap > 0) { var fg = gap * 0.45, fr = fg / free.kcal; free.kcal += fg; free.c *= 1 + fr; free.f *= 1 + fr; free.p *= 1 + fr * 0.5; gap -= fg; }
-    var k = 1 + gap / Math.max(1, sk), kmax = free ? 1.7 : 2.4; k = Math.max(0.4, Math.min(kmax, k));
-    L.forEach(function (x) {
-      var ng = x.g * k; ng = ng >= 20 ? Math.round(ng / 5) * 5 : Math.max(1, Math.round(ng)); var d = (ng - x.g) / 100;
+    /* troppe kcal: giù grassi, poi contorni dolci, poi proteine (i carboidrati restano) */
+    /* poche kcal: su proteine e grassi, poi carboidrati, poi il resto */
+    var order = gap < 0 ? ['fat', 'side', 'prot'] : ['prot', 'fat', 'carb', 'side'];
+    order.forEach(function (t) { gap -= shift(L, t, gap); });
+    L.forEach(function (x) { var d = (x.g - x.g0) / 100; if (!d) return;
       x.m.kcal += d * x.fd[1]; x.m.p += d * x.fd[2]; x.m.c += d * x.fd[3]; x.m.f += d * x.fd[4];
-      if (ng !== x.g) { x.it[1] = ng + ' ' + x.u; x.it.scaled = true; }
-    });
+      x.it[1] = x.g + ' ' + x.u; x.it.scaled = true; });
     var now = 0; out.forEach(function (m) { now += m.kcal; });
     if (free && Math.abs(kcal - now) > 20) { var r = (kcal - now) / free.kcal; free.kcal += kcal - now; free.c *= 1 + r; free.f *= 1 + r; free.p *= 1 + r * 0.5; }
     if (free) free.hint = 'Pasto libero: punta a circa ' + Math.round(free.kcal / 10) * 10 + ' kcal, prima la parte proteica.';
-    return k;
   }
   function target(who, i) { return who === 'R' ? plan().day[i] : 1450; }
   function eatenOf(i) { var k = iso(dateOf(i)); return ((S.eaten[k] || {})[S.who]) || {}; }
@@ -475,7 +497,7 @@ var RIC = /*RIC*/;
   var $ = function (s) { return document.querySelector(s); };
   function renderWeek() {
     $('#week').innerHTML = DOW.map(function (d, i) {
-      var w = D.WEEK[i], ic = (S.who === 'R' && GYM[i] ? '🏋️' : '') + (w.active ? '🥾' : '') + (i === 5 ? '🎉' : '');
+      var w = D.WEEK[i], ic = (S.who === 'R' && GYM[i] ? '🏋️' : '') + (S.who === 'R' && w.lowc ? '🥩' : '') + (w.active ? '🥾' : '') + (i === 5 ? '🎉' : '');
       return '<button type="button" class="dchip' + (i === TODAYI ? ' today' : '') + '" data-day="' + i + '" aria-pressed="' + (i === sel) + '" aria-label="' + w.day + '"><span class="dn">' + d + '</span><span class="dd">' + dateOf(i).getDate() + '</span><span class="di">' + ic + '</span></button>';
     }).join('');
     $('#week').hidden = !(tab === 'oggi');
@@ -504,6 +526,7 @@ var RIC = /*RIC*/;
     var tags = [];
     if (who === 'R' && GYM[i]) tags.push('<a class="tag gym" href="' + GYM_URL + '" target="_blank" rel="noopener">🏋️ Palestra · ' + GYM[i] + ' ›</a>');
     if (w.active) tags.push('<span class="tag walk">🥾 Camminata · porzioni extra incluse</span>');
+    if (who === 'R' && w.lowc) tags.push('<span class="tag">🥩 Giorno senza carboidrati · più proteine e grassi buoni</span>');
     if (i === 5) tags.push('<span class="tag free">🎉 Cena libera per tutti e due</span>');
     if (i === 6) tags.push('<span class="tag free">' + (who === 'R' ? '🥐 Brioche a colazione · pranzo libero' : '🍝 Pranzo libero') + '</span>');
     tags.push('<span class="tag">Piano: ≈' + Math.round(tot.kcal / 10) * 10 + ' kcal · P ' + Math.round(tot.p) + ' g</span>');
