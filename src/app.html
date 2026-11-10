@@ -258,7 +258,7 @@ var RIC = /*RIC*/;
   var DOW = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
   var GYM = { 0: 'Giorno A', 2: 'Giorno B', 4: 'Giorno C' }; // lun, mer, ven (scheda palestra)
   var GYM_URL = 'https://palestraarme.netlify.app/';
-  var VEG = { R: 'zucchine, spinaci, finocchi, piselli, broccoli, cavolfiore, radicchio, carciofi', F: 'zucchine, piselli, spinaci, finocchi' };
+  var VEG = { R: 'zucchine, spinaci, finocchi, piselli, broccoli, radicchio, carciofi', F: 'zucchine, piselli, spinaci, finocchi' };
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var XICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
@@ -288,18 +288,18 @@ var RIC = /*RIC*/;
       var pr = cloneM((w.active && D.PRA_R_ACT[w.praRk]) || D.PRA_R[w.praRk]); pr.time = '12:30'; pr.key = 'pra'; pr.kind = 'pra'; pr.slot = w.praRk === 'prcL' ? 'praL' : null;
       pr.label = pr.label.replace(/^Pranzo 12:30 — /, 'Pranzo — '); out.push(pr);
       var me = cloneM(w.lowc ? D.MER_R_LC : D.MER_R); me.key = 'mer'; me.kind = 'mer'; if (w.lowc) me.fixed = true; if (w.active) addEx(me, D.MER_R.exAct); delete me.exAct; out.push(me);
-      var ce = cloneM(D.CEN_R[w.cenR]); ce.key = 'cen'; ce.kind = 'cen'; ce.slot = w.cenR === 'cenLib' ? null : w.cenR; ce.cid = w.cenR; if (w.active) addEx(ce, D.CEN_R[w.cenR].exAct); delete ce.exAct; out.push(ce);
+      var ce = cloneM(D.CEN_R[w.cenR]); ce.key = 'cen'; ce.kind = 'cen'; ce.slot = w.cenR === 'cenLib' ? null : w.cenR; ce.cid = w.cenR; if (w.fishF) ce.hint = 'Francesca stasera: ' + w.fishF.toLowerCase() + ', con la stessa verdura.'; if (w.active) addEx(ce, D.CEN_R[w.cenR].exAct); delete ce.exAct; out.push(ce);
     } else {
       var c2 = cloneM(D.COL_F[w.colFk]); c2.key = 'col'; c2.kind = 'col'; c2.slot = 'colF'; out.push(c2);
       var s2 = cloneM(D.SPU_F); s2.key = 'spu'; s2.kind = 'mer'; out.push(s2);
-      var p2 = cloneM(D.PRA_F[w.praFk]); p2.key = 'pra'; p2.kind = 'pra'; p2.slot = { pasta: 'praFPasta', pasta2: 'praFPasta', riso: 'praFRiso', legumi: 'praL' }[w.praFk] || null; out.push(p2);
+      var p2 = cloneM(w.praFm); p2.key = 'pra'; p2.kind = 'pra'; p2.slot = p2.slot || null; out.push(p2);
       var m2 = cloneM(D.MER_F); m2.key = 'mer'; m2.kind = 'mer'; out.push(m2);
-      var e2 = cloneM(D.CEN_F[w.cenF]); e2.key = 'cen'; e2.kind = 'cen'; e2.slot = w.cenF === 'cenPass' ? 'cenFPass' : w.cenF === 'cenLib' ? null : w.cenF; if (w.cenF === 'cenLib') e2.hint = 'Pasto libero: punta a circa 520 kcal, prima la parte proteica.'; e2.cid = w.cenF; out.push(e2);
+      var e2 = cloneM(w.cenFm); e2.key = 'cen'; e2.kind = 'cen'; e2.slot = e2.slot || null; e2.cid = w.cenR; out.push(e2);
     }
     out.forEach(function (m) { if (m.key !== 'gym' && !m.fixed) applyVar(m, who); });
     if (who === 'R') { out = applyAdj(out, i); out.forEach(function (m) { if (m.key === 'gym') applyVar(m, who); }); }
     out.forEach(function (m) { m.items = m.items.map(function (it) { return fixItem(it, who, i, m.veg); }); });
-    if (who === 'R') scaleDay(out, target(who, i));
+    scaleDay(out, target(who, i));
     return out;
   }
   /* Revisione nov 2026: Mounjaro 10 mg + Triatec 5 mg, 96 kg -> 80 kg a fine maggio 2027.
@@ -463,7 +463,7 @@ var RIC = /*RIC*/;
     if (free && Math.abs(kcal - now) > 20) { var r = (kcal - now) / free.kcal; free.kcal += kcal - now; free.c *= 1 + r; free.f *= 1 + r; free.p *= 1 + r * 0.5; }
     if (free) free.hint = 'Pasto libero: punta a circa ' + Math.round(free.kcal / 10) * 10 + ' kcal, prima la parte proteica.';
   }
-  function target(who, i) { return who === 'R' ? plan().day[i] : 1450; }
+  function target(who, i) { return who === 'R' ? plan().day[i] : i === 5 ? 1650 : 1450; }
   function eatenOf(i) { var k = iso(dateOf(i)); return ((S.eaten[k] || {})[S.who]) || {}; }
   function mins(t) { if (!/\d/.test(t || '')) t = '17:30'; var a = String(t || '0:0').split(':'); return (+a[0]) * 60 + (+a[1] || 0); }
 
@@ -540,12 +540,12 @@ var RIC = /*RIC*/;
       var done = !!eaten[m.key], isOpen = !!ok[m.key], col = { col: 'var(--col)', pra: 'var(--pra)', mer: 'var(--mer)', cen: 'var(--cen)', gym: 'var(--accent)' }[m.kind];
       var title = m.label.replace(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)\s*—\s*/, function (a, b) { return ''; }) || m.label;
       var kind = m.label.match(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)/); kind = kind ? kind[1] : ''; if (m.key === 'gym') { kind = 'Palestra'; title = 'Spuntino palestra'; }
-      var pick = calPickFor(m, who, i), rs = m.slot ? recipesFor(m.slot, who) : [];
+      var pick = calPickFor(m, who, i), rs = m.slot ? recipesFor(m.slot, who) : [], oth = (m.key === 'pra' || m.key === 'cen') ? otherOf(m.key) : '';
       h += '<article class="meal' + (done ? ' done' : '') + (isOpen ? ' open' : '') + (m.key === nk ? ' next' : '') + '" style="--mc:' + col + '" data-key="' + m.key + '">' +
         '<div class="mh"><button type="button" class="mh-t" data-toggle="' + m.key + '" style="border:0;background:transparent;text-align:left;padding:0" aria-expanded="' + isOpen + '"><div class="mt">' + esc(m.time) + ' · ' + esc(kind) + (m.key === nk ? ' <span class="badge">' + (mins(m.time) <= NOW.getHours() * 60 + NOW.getMinutes() ? 'Ora' : 'Prossimo') + '</span>' : '') + '</div>' +
         '<h3>' + esc(m.varName && VAR[m.varKey][altIdx(m.varKey) % VAR[m.varKey].length] ? (m.warm ? '🔥 ' : '') + m.varName : title.replace(/\s*\(\+camminata\)/, '')) + '</h3><div class="mk">' + Math.round(m.kcal) + ' kcal · P ' + r1(m.p) + ' g' + (pick ? ' · 💡 ' + esc(pick.n) : '') + '</div></button>' +
         '<button type="button" class="eat" data-eat="' + m.key + '" aria-pressed="' + done + '" aria-label="Segna ' + esc(kind) + ' come mangiato">' + CHECK + '</button></div>' +
-        '<div class="mb">' + (m.hint ? '<p class="hint">⏱ ' + esc(m.hint) + '</p>' : '') + '<ul class="ing">' + m.items.map(function (it) { return '<li><span>' + esc(it[0]) + (it[2] ? '<small>' + esc(it[2]) + '</small>' : '') + '</span><span' + (it.scaled ? ' class="sc"' : '') + '>' + esc(it[1]) + '</span></li>'; }).join('') +
+        '<div class="mb">' + (m.hint ? '<p class="hint">⏱ ' + esc(m.hint) + '</p>' : '') + (oth ? '<p class="hint">' + oth + '</p>' : '') + '<ul class="ing">' + m.items.map(function (it) { return '<li><span>' + esc(it[0]) + (it[2] ? '<small>' + esc(it[2]) + '</small>' : '') + '</span><span' + (it.scaled ? ' class="sc"' : '') + '>' + esc(it[1]) + '</span></li>'; }).join('') +
         (m.plus || []).map(function (it) { return '<li class="plus"><span>' + esc(it[0].replace(/^\+\s*/, '+ ')) + '</span><span>' + esc(it[1]) + '</span></li>'; }).join('') +
         (m.extra || []).map(function (it) { return '<li class="extra"><span>' + esc(it[0].replace(/^\+\s*/, '+ ')) + '</span><span>' + esc(it[1]) + '</span></li>'; }).join('') + '</ul>' +
         '<div class="mmac"><span>P <b>' + r1(m.p) + '</b></span><span>C <b>' + r1(m.c) + '</b></span><span>G <b>' + r1(m.f) + '</b></span></div>' +
@@ -568,9 +568,14 @@ var RIC = /*RIC*/;
       h += '<div class="sect"><h2>Integrazione</h2><span>' + SUPP.filter(function (s) { return sv[s[0]]; }).length + ' di ' + SUPP.length + '</span></div><div class="supp">' +
         SUPP.map(function (s) { return '<button type="button" class="sp" data-supp="' + s[0] + '" aria-pressed="' + !!sv[s[0]] + '"><b>' + s[1] + '</b><small>' + s[2] + '</small><span class="ck">' + CHECK + '</span></button>'; }).join('') + '</div>';
     } else {
-      h += '<div class="note"><b>Cena:</b> passato di verdura + proteina (uovo o formaggio) 2 volte a settimana.</div>';
+      h += '<div class="note"><b>Pesce:</b> martedì e venerdì sera, con la stessa verdura di Roberto.</div>';
     }
     $('#main').innerHTML = h;
+  }
+  function otherOf(key) {
+    var ow = S.who === 'R' ? 'F' : 'R', om = meals(ow, sel).filter(function (x) { return x.key === key; })[0];
+    if (!om || !om.items.some(function (it) { return it[1]; })) return '';
+    return (ow === 'F' ? '👩 Per Francesca' : '🧔 Per Roberto') + ' (' + esc(om.label.replace(/^(Pranzo|Cena)\s*—\s*/, '')) + '): ' + om.items.filter(function (it) { return it[1]; }).map(function (it) { return esc(it[0].replace(/\s*\(.*?\)/g, '')) + ' ' + esc(it[1]); }).join(', ');
   }
   function macro(l, v, t, c) { return '<div class="mac"><span class="ml">' + l + '</span><div class="bar"><i style="width:' + (t ? Math.min(100, v / t * 100) : 0) + '%;background:' + c + '"></i></div><span class="mv">' + Math.round(v) + '/' + Math.round(t) + ' g</span></div>'; }
 
