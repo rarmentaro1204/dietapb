@@ -176,6 +176,21 @@ h1, h2, h3 { margin: 0; }
 .wf { display: flex; gap: 8px; margin-top: 12px; } .wf input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 10px 12px; font: inherit; color: var(--ink); }
 .empty { text-align: center; color: var(--muted); padding: 30px 10px; }
 
+
+/* analisi */
+.mg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.mf { display: flex; flex-direction: column; gap: 3px; font-size: 13px; min-width: 0; }
+.mf span { color: var(--muted); font-weight: 600; line-height: 1.2; } .mf span em { font-style: normal; color: var(--accent); }
+.mf input, .mdate { border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 10px 12px; font: inherit; color: var(--ink); width: 100%; min-width: 0; }
+.mh { margin: 14px 0 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); grid-column: 1 / -1; }
+.ind { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.ind div { background: var(--surface2); border-radius: 14px; padding: 10px 12px; } .ind small { display: block; font-size: 12px; color: var(--muted); font-weight: 600; } .ind b { font-family: var(--display); font-size: 22px; line-height: 1.2; } .ind span { display: block; font-size: 12px; color: var(--muted); }
+.dl { color: var(--ok); font-weight: 700; } .du { color: #9A3B12; font-weight: 700; }
+.guide { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 4px 16px; margin-top: 10px; box-shadow: var(--shadow); }
+.guide summary { cursor: pointer; font-weight: 700; padding: 12px 0; font-size: 15px; }
+.guide p, .guide li { font-size: 14px; color: var(--muted); margin: 0 0 8px; } .guide ol, .guide ul { padding-left: 20px; margin: 0 0 8px; } .guide b { color: var(--ink); }
+.star { color: var(--accent); font-weight: 700; }
+
 /* cal15 */
 .cday { border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 12px 14px; margin-bottom: 8px; }
 .cday.now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
@@ -188,7 +203,7 @@ h1, h2, h3 { margin: 0; }
 
 /* bottom nav */
 .nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
-.nav .wrap { display: grid; grid-template-columns: repeat(5, 1fr); padding: 0 6px; }
+.nav .wrap { display: grid; grid-template-columns: repeat(6, 1fr); padding: 0 4px; }
 .nb { border: 0; background: transparent; padding: 9px 0 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; color: var(--muted); }
 .nb svg { width: 24px; height: 24px; }
 .nb[aria-current="page"] { color: var(--accent); }
@@ -240,6 +255,7 @@ h1, h2, h3 { margin: 0; }
     <button type="button" class="nb" data-tab="spesa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2 10h10l2-7H7"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="16.5" cy="19" r="1.4"/></svg>Spesa</button>
     <button type="button" class="nb" data-tab="ricette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M9 9c0-2 2-2 2-4M14 9c0-2 2-2 2-4"/></svg>Ricette</button>
     <button type="button" class="nb" data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></svg>15 giorni</button>
+    <button type="button" class="nb" data-tab="analisi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Analisi</button>
   </div>
 </nav>
 
@@ -265,7 +281,7 @@ var RIC = /*RIC*/;
   /* ---------- stato ---------- */
   var KEY = 'dieta-pb-v3', S;
   try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { S = {}; }
-  S.who = S.who || 'R'; S.eaten = S.eaten || {}; S.supp = S.supp || {}; S.shop = S.shop || {};
+  S.who = S.who || 'R'; S.eaten = S.eaten || {}; S.supp = S.supp || {}; S.shop = S.shop || {}; S.meas = S.meas || {};
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -595,7 +611,7 @@ var RIC = /*RIC*/;
       (ks.length ? '<details class="wh"><summary>Storico pesate</summary>' + ks.slice().reverse().map(function (k) { return '<div class="kv"><span>' + new Date(k).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }) + '</span><b>' + r1(S.w[k]) + ' kg <button type="button" class="del" data-delw="' + k + '" aria-label="Elimina">×</button></b></div>'; }).join('') + '</details>' : '') + '</section>';
   }
   function renderSettimana() {
-    var who = S.who, h = (who === 'R' ? weightHTML() : '') + '<div class="sect" style="margin-top:' + (who === 'R' ? 22 : 8) + 'px"><h2>La settimana</h2><span>tocca un giorno</span></div><div class="wk">';
+    var who = S.who, h = '<div class="sect" style="margin-top:8px"><h2>La settimana</h2><span>tocca un giorno</span></div><div class="wk">';
     D.WEEK.forEach(function (w, i) {
       var ms = meals(who, i), t = totals(ms), ek = eatenOf(i), nd = ms.filter(function (m) { return ek[m.key]; }).length;
       var short = function (m) { var x = m.label.replace(/^(Colazione|Pranzo|Cena|Merenda|Spuntino)\s*—\s*/, '').replace(/\s*\(\+camminata\)/, ''); return /^(Colazione|Merenda|Spuntino)( Tipo [AB])?$/.test(x) ? (m.items[0] ? m.items[0][0] : x) : x; };
@@ -605,6 +621,110 @@ var RIC = /*RIC*/;
         '<div class="tags">' + (who === 'R' && GYM[i] ? '<span class="tag gym">🏋️ ' + GYM[i] + '</span>' : '') + (w.active ? '<span class="tag walk">🥾 Camminata</span>' : '') + '</div></button>';
     });
     $('#main').innerHTML = h + '</div>';
+  }
+
+
+  /* ---------- analisi: circonferenze, pliche, composizione ---------- */
+  var HEIGHT = 170, AGE = 31;
+  var CIRC = [
+    ['vita', 'Vita (punto medio costole–bacino)', 3, 'Metà strada tra l’ultima costola e la cresta iliaca (l’osso del bacino), a fine espirazione, nastro orizzontale. È la misura n°1 per salute e grasso viscerale.'],
+    ['addome', 'Addome (all’ombelico)', 3, 'Orizzontale all’altezza dell’ombelico, pancia rilassata. Serve per la formula della % di grasso (Navy).'],
+    ['collo', 'Collo', 3, 'Appena sotto il pomo d’Adamo, nastro leggermente inclinato verso il basso davanti. Serve per la formula Navy.'],
+    ['fianchi', 'Fianchi', 2, 'Nel punto di massima sporgenza dei glutei, piedi uniti, nastro orizzontale. Serve per il rapporto vita/fianchi.'],
+    ['coscia', 'Coscia (metà)', 2, 'A metà tra piega inguinale e rotula, gamba rilassata, peso su entrambi i piedi. Mostra grasso e muscolo delle gambe.'],
+    ['braccio', 'Braccio rilassato', 2, 'A metà tra spalla (acromion) e gomito, braccio lungo il fianco rilassato.'],
+    ['torace', 'Torace', 1, 'Sotto le ascelle, sul punto più alto dei capezzoli, a fine espirazione normale.'],
+    ['spalle', 'Spalle (bideltoidea)', 1, 'Intorno alle spalle nel punto più largo, braccia rilassate. Ottima per vedere la crescita muscolare.'],
+    ['bracciocon', 'Braccio contratto', 1, 'Come il braccio, ma con bicipite contratto al massimo.'],
+    ['avambraccio', 'Avambraccio', 1, 'Nel punto più largo sotto il gomito, pugno chiuso.'],
+    ['polpaccio', 'Polpaccio', 1, 'Nel punto più largo, in piedi con il peso sui due piedi.']
+  ];
+  var PLICHE = [
+    ['p_tri', 'Tricipite', 'Dietro al braccio, a metà tra spalla e gomito, plica verticale.'],
+    ['p_bic', 'Bicipite', 'Davanti al braccio, alla stessa altezza del tricipite, plica verticale.'],
+    ['p_sub', 'Sottoscapolare', 'Sotto la punta della scapola, plica obliqua a 45° (verso il basso e fuori).'],
+    ['p_sopra', 'Soprailiaca', 'Sopra la cresta iliaca sulla linea ascellare, plica obliqua.'],
+    ['p_petto', 'Petto', 'Plica obliqua a metà tra ascella e capezzolo.'],
+    ['p_addome', 'Addome', 'Plica verticale 2 cm a lato dell’ombelico.'],
+    ['p_coscia', 'Coscia', 'Plica verticale sul davanti, a metà tra piega inguinale e rotula.']
+  ];
+  function parseVals(v) {
+    var a = String(v || '').replace(/,(?=\d)/g, '.').split(/[\s;\/]+|,\s*/).map(parseFloat).filter(function (x) { return x > 0; });
+    return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length * 10) / 10 : null;
+  }
+  function lg(x) { return Math.log(x) / Math.LN10; }
+  function siri(d) { return 495 / d - 450; }
+  function compo(m, w) {
+    var o = {};
+    if (m.vita) { o.whtr = m.vita / HEIGHT; if (m.fianchi) o.whr = m.vita / m.fianchi; }
+    if (S.who === 'R') {
+      if (m.addome && m.collo && m.addome > m.collo) o.navy = 86.010 * lg((m.addome - m.collo) / 2.54) - 70.041 * lg(HEIGHT / 2.54) + 36.76;
+      if (m.p_petto && m.p_addome && m.p_coscia) { var s3 = m.p_petto + m.p_addome + m.p_coscia; o.jp3 = siri(1.10938 - 0.0008267 * s3 + 0.0000016 * s3 * s3 - 0.0002574 * AGE); }
+      if (m.p_tri && m.p_bic && m.p_sub && m.p_sopra) o.dw4 = siri(1.1422 - 0.0544 * lg(m.p_tri + m.p_bic + m.p_sub + m.p_sopra));
+    }
+    ['navy', 'jp3', 'dw4'].forEach(function (k) { if (o[k] !== undefined && (o[k] < 3 || o[k] > 60 || isNaN(o[k]))) delete o[k]; });
+    return o;
+  }
+  function measDates() { return Object.keys((S.meas && S.meas[S.who]) || {}).sort(); }
+  function delta(k, a, b, unit, goodDown) {
+    if (a == null || b == null) return '';
+    var d = r1(a - b); if (!d) return '<span>invariato</span>';
+    return '<span class="' + ((d < 0) === !!goodDown ? 'dl' : 'du') + '">' + (d > 0 ? '+' : '') + d + ' ' + unit + '</span>';
+  }
+  function guideHTML() {
+    return '<details class="guide"><summary>⭐ Quali circonferenze contano di più</summary>' +
+      '<p><b>Per te (dimagrire senza perdere muscolo) le più importanti sono:</b></p><ol>' +
+      '<li><b>Vita</b>: è l’indicatore che meglio segue il grasso addominale e il rischio cardiometabolico. Obiettivo: vita ÷ altezza sotto 0,5 (con 170 cm = meno di 85 cm).</li>' +
+      '<li><b>Addome all’ombelico + collo</b>: con l’altezza servono per stimare la % di grasso con il metodo Navy, senza calibro.</li>' +
+      '<li><b>Fianchi</b>: con la vita dà il rapporto vita/fianchi (per gli uomini il rischio sale da 0,90 in su).</li></ol>' +
+      '<p>Poi, per controllare che mantieni il muscolo: <b>coscia, braccio, torace, spalle</b> (se scendono poco mentre il peso cala, stai perdendo soprattutto grasso). Polpaccio, avambraccio e braccio contratto sono facoltativi.</p></details>' +
+      '<details class="guide"><summary>📏 Come misurare le circonferenze</summary><ol>' +
+      '<li>Nastro metrico flessibile non elastico, al mattino a digiuno, sempre alle stesse condizioni.</li><li>Postura eretta e rilassata, nastro orizzontale e aderente alla pelle senza stringere.</li>' +
+      '<li>Leggi a fine espirazione normale, al mezzo centimetro più vicino o meglio al mm.</li><li>Fai 2–3 misure e inserisci la media (qui puoi scrivere anche “92,3 92,5 92,1”: faccio io la media).</li>' +
+      '<li>Misura sempre lo stesso lato (di solito il destro), ogni 1–2 settimane, non tutti i giorni.</li></ol>' + CIRC.map(function (c) { return '<p><b>' + c[1] + '</b>: ' + c[3] + '</p>'; }).join('') + '</details>' +
+      '<details class="guide"><summary>🤏 Come misurare la plica (calibro)</summary><ol>' +
+      '<li>Serve un <b>plicometro</b> (calibro) tarato: i modelli economici vanno bene per seguire la tendenza.</li>' +
+      '<li>Segna il punto con una matita, a pelle asciutta, <b>non subito dopo l’allenamento</b> o dopo aver sudato.</li>' +
+      '<li>Con pollice e indice solleva una piega di pelle e grasso <b>staccandola dal muscolo</b>, tenendo la presa per tutta la misura.</li>' +
+      '<li>Applica il calibro <b>1 cm sotto le dita</b>, perpendicolare alla piega, e leggi dopo 2–4 secondi.</li>' +
+      '<li>Ripeti 3 volte, aspettando 15 secondi tra una e l’altra, e inserisci i tre valori (li mediamo).</li>' +
+      '<li>Misura sempre lo stesso lato, alla stessa ora, dalla stessa persona se possibile.</li></ol>' +
+      PLICHE.map(function (p) { return '<p><b>' + p[1] + '</b>: ' + p[2] + '</p>'; }).join('') +
+      '<p><b>Attenzione:</b> con un BMI sopra 30 il calibro è meno preciso (pieghe difficili da afferrare). Usalo per vedere come cambia nel tempo, non come valore assoluto. Le formule: Jackson-Pollock 3 pliche (petto, addome, coscia) e Durnin-Womersley 4 pliche (tricipite, bicipite, sottoscapolare, soprailiaca).</p></details>';
+  }
+  function analisiHTML() {
+    var ds = measDates(), M = (S.meas && S.meas[S.who]) || {}, last = ds.length ? M[ds[ds.length - 1]] : {}, first = ds.length ? M[ds[0]] : {};
+    var prev = ds.length > 1 ? M[ds[ds.length - 2]] : null;
+    var w = plan().cur, c = compo(last, w), c0 = compo(first, w);
+    var h = '<div class="sect" style="margin-top:8px"><h2>Misure corpo</h2><span>' + (ds.length ? ds.length + (ds.length === 1 ? ' misurazione' : ' misurazioni') : 'nessuna ancora') + '</span></div>';
+    var ind = '';
+    var cell = function (l, v, sub) { return '<div><small>' + l + '</small><b>' + v + '</b><span>' + sub + '</span></div>'; };
+    if (c.whtr) ind += cell('Vita ÷ altezza', c.whtr.toFixed(2).replace('.', ','), c.whtr < 0.5 ? 'ottimo (< 0,5)' : c.whtr < 0.6 ? 'da ridurre (obiettivo < 0,5)' : 'alto: priorità ridurre');
+    if (c.whr) ind += cell('Vita ÷ fianchi', c.whr.toFixed(2).replace('.', ','), c.whr < 0.9 ? 'nella norma' : 'sopra 0,90');
+    [['navy', '% grasso · Navy', 'nastro'], ['jp3', '% grasso · 3 pliche', 'Jackson-Pollock'], ['dw4', '% grasso · 4 pliche', 'Durnin-Womersley']].forEach(function (x) {
+      if (c[x[0]] !== undefined) {
+        var fm = w * c[x[0]] / 100;
+        ind += cell(x[1], r1(c[x[0]]) + '%', x[2] + ' · massa grassa ' + r1(fm) + ' kg, magra ' + r1(w - fm) + ' kg' + (c0[x[0]] !== undefined && ds.length > 1 ? ' · ' + (r1(c[x[0]] - c0[x[0]]) > 0 ? '+' : '') + r1(c[x[0]] - c0[x[0]]) + ' punti dall’inizio' : ''));
+      }
+    });
+    if (ind) h += '<section class="goal"><b style="font-size:17px">Indicatori (ultima misura)</b><div class="ind">' + ind + '</div><p class="gl">Le % di grasso sono stime e i metodi non coincidono tra loro: guarda soprattutto <b>come cambiano nel tempo</b> usando sempre lo stesso metodo.' + (S.who === 'R' ? '' : ' Le formule di % grasso qui sono solo per Roberto.') + '</p></section>';
+    h += '<section class="goal"><b style="font-size:17px">Nuova misurazione</b><form id="mform"><div class="mg"><label class="mf" style="grid-column:1/-1"><span>Data</span><input class="mdate" id="mdate" type="date" value="' + iso(NOW) + '" max="' + iso(NOW) + '"></label>' +
+      '<p class="mh">Circonferenze (cm)</p>' + CIRC.map(function (c) { return '<label class="mf"><span>' + (c[2] === 3 ? '<em>⭐⭐⭐</em> ' : c[2] === 2 ? '<em>⭐⭐</em> ' : '') + esc(c[1]) + '</span><input id="m-' + c[0] + '" type="text" inputmode="decimal" placeholder="' + (last[c[0]] || '') + '" autocomplete="off"></label>'; }).join('') +
+      '<p class="mh">Pliche (mm) · facoltative</p>' + PLICHE.map(function (p) { return '<label class="mf"><span>' + esc(p[1]) + '</span><input id="m-' + p[0] + '" type="text" inputmode="decimal" placeholder="' + (last[p[0]] || '') + '" autocomplete="off"></label>'; }).join('') + '</div>' +
+      '<p class="gl">Lascia vuoto ciò che non misuri. Puoi scrivere più letture separate da spazio: faccio la media.</p><div class="wf"><button class="chipbtn hi" type="submit" style="flex:1;justify-content:center">Salva misurazione</button></div></form></section>';
+    if (ds.length) {
+      var rows = CIRC.concat(PLICHE.map(function (p) { return [p[0], 'Plica ' + p[1].toLowerCase(), 0]; })).filter(function (c) { return last[c[0]] != null; });
+      h += '<div class="sect"><h2>Andamento</h2><span>' + new Date(ds[ds.length - 1]).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + (prev ? ' vs precedente' : '') + '</span></div><section class="goal" style="margin-top:0"><div class="kvs" style="margin-top:0;border-top:0">' +
+        rows.map(function (c) {
+          var good = /^(vita|addome|fianchi|p_)/.test(c[0]), u = /^p_/.test(c[0]) ? 'mm' : 'cm';
+          return '<div class="kv"><span>' + esc(c[1]) + '</span><b>' + last[c[0]] + ' ' + u + ' ' + (prev && prev[c[0]] != null ? delta(c[0], last[c[0]], prev[c[0]], u, good) : (ds.length > 1 && first[c[0]] != null && first !== last ? delta(c[0], last[c[0]], first[c[0]], u, good) : '')) + '</b></div>';
+        }).join('') + '</div></section>';
+      h += '<details class="guide"><summary>Storico misurazioni</summary>' + ds.slice().reverse().map(function (d) { return '<div class="kv"><span>' + new Date(d).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + Object.keys(M[d]).length + ' misure</span><b><button type="button" class="del" data-delm="' + d + '" aria-label="Elimina misurazione">×</button></b></div>'; }).join('') + '</details>';
+    }
+    return h + guideHTML();
+  }
+  function renderAnalisi() {
+    $('#main').innerHTML = (S.who === 'R' ? '<div class="sect" style="margin-top:8px"><h2>Peso e obiettivo</h2><span>80 kg a maggio 2027</span></div>' + weightHTML().replace('class="goal"', 'class="goal" style="margin-top:0"') : '') + analisiHTML();
   }
 
   var shopHide = false;
@@ -667,9 +787,9 @@ var RIC = /*RIC*/;
   function render() {
     document.querySelectorAll('.nb').forEach(function (b) { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     document.querySelectorAll('.who button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.who === S.who)); });
-    $('#htitle').textContent = { oggi: sel === TODAYI ? 'Oggi' : D.WEEK[sel].day, settimana: 'Settimana', spesa: 'Spesa', ricette: 'Ricette', cal: '15 giorni' }[tab];
+    $('#htitle').textContent = { oggi: sel === TODAYI ? 'Oggi' : D.WEEK[sel].day, settimana: 'Settimana', spesa: 'Spesa', ricette: 'Ricette', cal: '15 giorni', analisi: 'Analisi' }[tab];
     renderWeek();
-    ({ oggi: renderOggi, settimana: renderSettimana, spesa: renderSpesa, ricette: renderRicette, cal: renderCal })[tab]();
+    ({ oggi: renderOggi, settimana: renderSettimana, spesa: renderSpesa, ricette: renderRicette, cal: renderCal, analisi: renderAnalisi })[tab]();
   }
 
   /* ---------- foglio ricetta / idee ---------- */
@@ -708,7 +828,8 @@ var RIC = /*RIC*/;
       if (e[ds.eat]) { var ok2 = openKeys[sel + S.who] = {}; var ms = meals(S.who, sel), nk = nextKey(ms, e); if (nk) ok2[nk] = true; try { navigator.vibrate && navigator.vibrate(15); } catch (x) {} }
       save(); return renderOggi();
     }
-    if (ds.delw) { delete S.w[ds.delw]; if (S.eng && S.eng.upd === ds.delw) { S.eng.tdee = S.eng.prev || S.eng.tdee; delete S.eng.upd; } save(); PLAN = null; return renderSettimana(); }
+    if (ds.delw) { delete S.w[ds.delw]; if (S.eng && S.eng.upd === ds.delw) { S.eng.tdee = S.eng.prev || S.eng.tdee; delete S.eng.upd; } save(); PLAN = null; return renderAnalisi(); }
+    if (ds.delm) { delete S.meas[S.who][ds.delm]; save(); return renderAnalisi(); }
     if (ds.alt) { S.alt = S.alt || {}; S.alt[ds.alt] = (altIdx(ds.alt) + 1) % VAR[ds.alt].length; save(); var ok3 = openKeys[sel + S.who] = openKeys[sel + S.who] || {}; ok3[ds.alt.split(':')[1]] = true; return renderOggi(); }
     if (ds.supp) { var sk = iso(dateOf(sel)); S.supp[sk] = S.supp[sk] || {}; S.supp[sk][ds.supp] = !S.supp[sk][ds.supp]; save(); return renderOggi(); }
     if (ds.shop) { S.shop[ds.shop] = !S.shop[ds.shop]; save(); return renderSpesa(); }
@@ -727,7 +848,15 @@ var RIC = /*RIC*/;
   document.addEventListener('submit', function (e) {
     if (e.target.id !== 'wform') return; e.preventDefault();
     var v = parseFloat(String($('#wkg').value).replace(',', '.')); if (!(v > 40 && v < 250)) { $('#wkg').focus(); return; }
-    S.w = S.w || {}; S.w[iso(NOW)] = v; save(); PLAN = null; renderSettimana();
+    S.w = S.w || {}; S.w[iso(NOW)] = v; save(); PLAN = null; renderAnalisi();
+  });
+
+  document.addEventListener('submit', function (e) {
+    if (e.target.id !== 'mform') return; e.preventDefault();
+    var rec = {}; CIRC.concat(PLICHE).forEach(function (c) { var el = document.getElementById('m-' + c[0]), v = el ? parseVals(el.value) : null; if (v) rec[c[0]] = v; });
+    if (!Object.keys(rec).length) { var f = document.getElementById('m-vita'); if (f) f.focus(); return; }
+    var d = $('#mdate').value || iso(NOW); S.meas = S.meas || {}; S.meas[S.who] = S.meas[S.who] || {};
+    S.meas[S.who][d] = Object.assign(S.meas[S.who][d] || {}, rec); save(); renderAnalisi();
   });
   document.addEventListener('input', function (e) { if (e.target.id === 'rq') { rq = e.target.value; renderRicette(true); } });
   window.addEventListener('scroll', function () { $('#top').classList.toggle('sc', window.scrollY > 4); }, { passive: true });
